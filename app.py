@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import re
 import urllib.request
@@ -111,7 +112,8 @@ class HackathonHandler(http.server.SimpleHTTPRequestHandler):
 
             body = self._read_json(400_000)
             receipt = body.get("receipt") or {}
-            if not receipt.get("lines"):
+            raw_lines = receipt.get("lines") or []
+            if not raw_lines:
                 self._send_json(400, {"status": "error", "error": "영수증 인식 결과가 없습니다. 먼저 영수증 사진을 올려 주세요."})
                 return
             patient = {
@@ -126,8 +128,10 @@ class HackathonHandler(http.server.SimpleHTTPRequestHandler):
             drop = round((steps_today - steps_base) / steps_base * 100) if steps_today is not None and steps_base else None
             wearable = {"steps_today": steps_today, "steps_baseline": steps_base, "drop_pct": drop,
                         "arousal_min": int(w["arousal_min"]) if str(w.get("arousal_min", "")).isdigit() else None}
-            safe_receipt = {"lines": [str(x)[:300] for x in receipt.get("lines", [])][:200],
-                            "parsed": receipt.get("parsed") or {}}
+            safe_lines = [str(x)[:300] for x in raw_lines if isinstance(x, (str, int, float))][:200]
+            # Server-side deterministic re-parse ensures data integrity and provenance
+            server_parsed = rp.parse_receipt(safe_lines)
+            safe_receipt = {"lines": safe_lines, "parsed": server_parsed, "provenance": "server_verified"}
             result = rp.reason(NEBIUS_BASE_URL, NEBIUS_API_KEY, "EN" if body.get("ui_lang") == "EN" else "KR",
                                patient, wearable, safe_receipt)
             self._send_json(200, result)

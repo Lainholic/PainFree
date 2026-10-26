@@ -3,7 +3,7 @@
 Stage 1  OCR       : NVIDIA Nemotron-3.5-Super-VL transcribes the photo (Primary),
                      with graceful fallback to Qwen/Qwen3.8-27B on complex dense grid tables.
 Stage 2  Parse     : Deterministic Python parser pulls amounts, codes, dates, facility, and item rows.
-Stage 3  Reasoning : NVIDIA Nemotron 3 Ultra 550B synthesizes patient condition + wearable telemetry + bill items.
+Stage 3  Reasoning : NVIDIA Nemotron 3 Nano 30B (MoE) synthesizes patient condition + wearable telemetry + bill items.
 
 Zero hardcoding: every single value shown to the user comes strictly from the uploaded image and patient inputs.
 """
@@ -19,7 +19,7 @@ from PIL import Image
 OCR_PRIMARY = "nvidia/Nemotron-3.5-Super-VL"
 OCR_FALLBACK = "Qwen/Qwen3.8-27B"
 OCR_MODEL = OCR_PRIMARY  # default identifier
-REASONING_MODEL = "nvidia/Nemotron-3-Ultra-550b-a55b"
+REASONING_MODEL = "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B"
 MAX_IMAGE_CHARS = 15_000_000  # ~11 MB base64
 
 OCR_PROMPT = (
@@ -351,7 +351,7 @@ def build_reasoning_messages(ui_lang, patient, wearable, receipt):
     drop = wearable.get("drop_pct")
     drop_txt = f"{drop}% vs personal baseline" if drop is not None else "baseline not provided"
     system = (
-        "You are a patient-side billing communication assistant (NVIDIA Nemotron 3 Ultra on Nebius Token Factory). "
+        "You are a patient-side billing communication assistant (NVIDIA Nemotron Medical Reasoning Engine on Nebius Token Factory). "
         "You are not a doctor and not a lawyer: never diagnose, never declare fraud or illegality. "
         "Task: read a hospital receipt photographed by the patient (OCR text + parsed items), compare it with "
         "the patient's pain record and wearable activity, and identify which billed lines the patient could reasonably "
@@ -361,7 +361,7 @@ def build_reasoning_messages(ui_lang, patient, wearable, receipt):
         "USA: CPT/E&M coding level, No Surprises Act itemized bill; Taiwan: NHI coverage and self-pay 自費). "
         "Only cite items that actually appear in the OCR text or parsed items. "
         "PRIVACY: never copy names, ID numbers, chart numbers, phone numbers or addresses; use placeholders like [환자 이름] / [Patient Name]. "
-        f"LANGUAGE: every field, including inquiry_letter, MUST be written in {out_lang}, even if the receipt is in another language. "
+        f"LANGUAGE: reasoning, questions, and inquiry_letter MUST be written in {out_lang}. (target_item must preserve the exact billed line from the receipt). "
         f"If the hospital's native language differs from {out_lang}, also provide inquiry_letter_local written in the hospital's language; "
         "otherwise set it to an empty string. Respond with JSON only: "
         '{"document_type": "...", "target_item": "exact billed line copied from receipt", '
@@ -397,14 +397,23 @@ def _extract_json(raw_text):
     s, e = raw_text.find("{"), raw_text.rfind("}")
     if s == -1 or e == -1:
         raise ValueError("model returned no JSON")
-    return json.loads(raw_text[s:e + 1], strict=False)
+    candidate = raw_text[s:e + 1]
+    try:
+        return json.loads(candidate, strict=False)
+    except json.JSONDecodeError:
+        for attempt in [candidate + '"}', candidate + '"]}', candidate + '"}']:
+            try:
+                return json.loads(attempt, strict=False)
+            except Exception:
+                pass
+        raise
 
 
 def reason(base_url, api_key, ui_lang, patient, wearable, receipt):
     system, user = build_reasoning_messages(ui_lang, patient, wearable, receipt)
     t0 = time.time()
     data = _post(base_url, api_key, {
-        "model": REASONING_MODEL, "temperature": 0.1, "max_tokens": 2500,
+        "model": REASONING_MODEL, "temperature": 0.1, "max_tokens": 3500,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}, timeout=120)
     raw = data["choices"][0]["message"].get("content") or ""
     result = _extract_json(raw)

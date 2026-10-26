@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>페인프리 (PainFree) - 순수 통증 기록 & 정밀 감사</title>
   
   <!-- Tailwind CSS CDN -->
@@ -219,7 +219,7 @@
               <i class="fa-solid fa-stethoscope text-cyan-400 text-xs"></i>
               <span id="condTitle">상기 병 (환자 평소 기저질환 / 진단명)</span>
             </span>
-            <span id="condBadge" class="text-[9px] text-cyan-400 font-mono">550B 인과추론 입력</span>
+            <span id="condBadge" class="text-[9px] text-cyan-400 font-mono">NVIDIA AI 추론 입력</span>
           </div>
           <div class="grid grid-cols-2 gap-1.5" id="conditionChipContainer">
             <button type="button" onclick="selectCondition(this, '요추 디스크(추간판 탈출증)')" class="condition-chip py-1.5 px-2 text-[11px] rounded-lg border border-cyan-500 bg-cyan-950/60 text-cyan-300 font-semibold transition-all text-left truncate active-condition">
@@ -280,7 +280,7 @@
             <span>Nemotron 3 Ultra</span>
           </span>
         </div>
-        <p id="sec2Sub" class="text-xs text-slate-400 mb-3">영수증을 찍으면 ① NVIDIA 비전 모델이 글자를 읽고 ② 파서가 항목·금액·코드를 뽑은 뒤 ③ Nemotron 3 Ultra 550B가 내 통증 기록과 대조해 원무과 확인 질의서 참고 초안을 씁니다.</p>
+        <p id="sec2Sub" class="text-xs text-slate-400 mb-3">영수증을 찍으면 ① NVIDIA 비전 모델이 글자를 읽고 ② 파서가 항목·금액·코드를 뽑은 뒤 ③ NVIDIA Nemotron 엔진이 내 통증 기록과 대조해 원무과 확인 질의서 참고 초안을 씁니다.</p>
 
         <!-- Upload & Public Real Samples -->
         <div class="space-y-2 mb-3">
@@ -306,7 +306,7 @@
             <div class="flex-1 space-y-1 text-[11px]">
               <div id="stageOcr" class="text-slate-400">① 글자 인식 (Nemotron-3.5-Super-VL): 대기</div>
               <div id="stageParse" class="text-slate-400">② 숫자·항목 파싱: 대기</div>
-              <div id="stageReason" class="text-slate-400">③ 550B 인과 추론: 대기</div>
+              <div id="stageReason" class="text-slate-400">③ NVIDIA Nemotron 추론: 대기</div>
             </div>
           </div>
           <div id="parsedSummary" class="hidden text-[11px] text-slate-300 space-y-1 border-t border-slate-800 pt-2">
@@ -333,7 +333,7 @@
         <!-- Audit Progress Indicator -->
         <div id="auditLoading" class="hidden mt-3 p-3 bg-slate-900/90 rounded-xl border border-cyan-500/30 text-center">
           <div class="inline-block animate-spin text-cyan-400 mb-1.5 text-base"><i class="fa-solid fa-circle-notch"></i></div>
-          <p class="text-xs font-semibold text-cyan-300">NVIDIA Nemotron 3 Ultra 550B 추론 중...</p>
+          <p class="text-xs font-semibold text-cyan-300">NVIDIA Nemotron 추론 중...</p>
           <p class="text-[10px] text-slate-400 mt-0.5">영수증 항목 × 통증 기록 × 활동량 대조</p>
         </div>
 
@@ -355,7 +355,7 @@
 
             <div class="mt-2 p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
               <div class="flex items-center justify-between text-[10px] text-cyan-400 font-semibold mb-1">
-                <span class="flex items-center space-x-1"><i class="fa-solid fa-brain"></i><span id="auditModelBadge">NVIDIA Nemotron 3 Ultra 550B</span></span>
+                <span class="flex items-center space-x-1"><i class="fa-solid fa-brain"></i><span id="auditModelBadge">NVIDIA Nemotron Engine</span></span>
                 <span id="auditLatencyBadge" class="text-slate-400">분석 대기</span>
               </div>
               <p id="reductionReason" class="text-[11px] text-slate-300 leading-relaxed">영수증을 찍거나 예시를 고른 뒤 감사를 실행하면 여기에 추론 근거가 표시됩니다.</p>
@@ -379,7 +379,7 @@
           <!-- What 550B actually does (live values) -->
           <div class="p-3 bg-gradient-to-b from-slate-900 to-slate-950 rounded-xl border border-cyan-500/40 text-xs space-y-2.5 shadow-md">
             <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
-              <span class="text-[11px] font-black uppercase text-cyan-400 flex items-center space-x-1.5"><i class="fa-solid fa-brain text-cyan-400 text-sm"></i><span id="pipeHeaderText">NVIDIA Nemotron 3 Ultra 550B에 들어가는 입력</span></span>
+              <span class="text-[11px] font-black uppercase text-cyan-400 flex items-center space-x-1.5"><i class="fa-solid fa-brain text-cyan-400 text-sm"></i><span id="pipeHeaderText">NVIDIA Nemotron Reasoning Engine에 들어가는 입력</span></span>
               <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-700 font-mono font-bold">Live</span>
             </div>
             <div class="grid grid-cols-3 gap-1.5 text-center text-[10px]">
@@ -397,7 +397,7 @@
               </div>
             </div>
             <p id="pipeExplText" class="text-[11px] text-slate-300 leading-relaxed p-2.5 rounded-lg bg-slate-950 border border-slate-800">
-              <strong class="text-cyan-300">역할 분담:</strong> 글자 인식과 파서는 영수증에 <em>무엇이 적혀 있는지</em>만 알아냅니다. 550B는 내 기저질환·통증·활동량을 그 청구 항목들과 함께 놓고, 어떤 항목에 대해 필요성·급여 여부·코드 수준·중복 여부를 물어볼 수 있는지 추론해 정중한 질문으로 바꿉니다.
+              <strong class="text-cyan-300">역할 분담:</strong> 글자 인식과 파서는 영수증에 <em>무엇이 적혀 있는지</em>만 알아냅니다. Nemotron 모델은 내 기저질환·통증·활동량을 그 청구 항목들과 함께 놓고, 어떤 항목에 대해 필요성·급여 여부·코드 수준·중복 여부를 물어볼 수 있는지 추론해 정중한 질문으로 바꿉니다.
             </p>
           </div>
         </div>
@@ -668,6 +668,56 @@
   </div>
 
 
+  <!-- MODAL 4: AI 개인정보 처리 및 분석 동의 모달 (AI Privacy & Processing Consent Modal) -->
+  <div id="aiConsentModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-4 overflow-y-auto hidden flex items-center justify-center">
+    <div class="bg-slate-900 border border-slate-750 text-slate-100 w-full max-w-[390px] rounded-2xl shadow-2xl p-5 relative">
+      <div class="flex items-center space-x-2.5 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm border border-cyan-500/30">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h3 id="consentModalTitle" class="text-sm font-bold text-white">안전한 AI 분석을 위한 동의 안내</h3>
+          <p id="consentModalSub" class="text-[10px] text-slate-400">데이터 최소화 및 개인정보 보호 규정 준수</p>
+        </div>
+      </div>
+      
+      <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-800 text-[11px] text-slate-300 space-y-2 mb-4 leading-relaxed">
+        <p id="consentModalP1">
+          선택하신 <strong class="text-cyan-300">영수증 이미지</strong>와 <strong class="text-cyan-300">통증·활동량 요약 데이터</strong>는 병원 원무과 질의서 초안 작성을 위해 <strong class="text-cyan-300">NVIDIA Nemotron AI(Nebius Token Factory)</strong>로 안전하게 전송되어 분석됩니다.
+        </p>
+        <div class="pt-1.5 border-t border-slate-800/80 space-y-1 text-[10px] text-slate-400">
+          <div class="flex items-start space-x-1.5">
+            <i class="fa-solid fa-check text-cyan-400 mt-0.5"></i>
+            <span id="consentBullet1">성명, 주민등록번호, 환자등록번호는 전송 시 자동 마스킹(***) 처리됩니다.</span>
+          </div>
+          <div class="flex items-start space-x-1.5">
+            <i class="fa-solid fa-check text-cyan-400 mt-0.5"></i>
+            <span id="consentBullet2">본 문서는 원무과 확인 참고용이며, 법적·의료적 진단이 아닙니다.</span>
+          </div>
+          <div class="flex items-start space-x-1.5">
+            <i class="fa-solid fa-check text-cyan-400 mt-0.5"></i>
+            <span id="consentBullet3">동의하지 않으셔도 로컬 통증 일지와 영수증 표는 계속 사용하실 수 있습니다.</span>
+          </div>
+        </div>
+      </div>
+
+      <label class="flex items-center space-x-2 mb-4 cursor-pointer p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors">
+        <input type="checkbox" id="consentAgreeCheck" class="rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-cyan-500 h-4 w-4">
+        <span id="consentCheckLabel" class="text-xs font-semibold text-cyan-300">[필수] 외부 AI 분석 및 질의서 생성에 동의합니다.</span>
+      </label>
+
+      <div class="flex items-center space-x-2">
+        <button type="button" onclick="declineConsent()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-750 text-slate-400 hover:text-slate-200 rounded-xl text-xs font-semibold transition-all">
+          <span id="consentDeclineBtn">동의 안 함</span>
+        </button>
+        <button type="button" id="consentConfirmBtn" onclick="confirmConsent()" class="flex-1 py-2.5 px-4 bg-gradient-to-r from-cyan-500 to-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-md hover:brightness-110 transition-all flex items-center justify-center space-x-1.5">
+          <i class="fa-solid fa-bolt"></i>
+          <span id="consentConfirmBtnText">동의하고 분석 진행</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Floating Toast Notification -->
   <div id="toast" class="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 bg-cyan-950/95 text-cyan-200 border border-cyan-500/50 px-4 py-2 rounded-full text-xs font-semibold shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 flex items-center space-x-2">
     <i class="fa-solid fa-circle-check text-cyan-400"></i>
@@ -901,19 +951,21 @@
       const file = event.target.files[0];
       if (!file) return;
       document.getElementById('uploadLabel').textContent = file.name;
-      scanReceipt(file, file.name);
+      checkAiConsent(() => scanReceipt(file, file.name));
       event.target.value = '';
     }
 
     async function loadSampleReceipt(path) {
-      try {
-        const res = await fetch(path);
-        if (!res.ok) throw new Error('예시 이미지 HTTP ' + res.status);
-        document.getElementById('uploadLabel').textContent = `공개 예시: ${path}`;
-        scanReceipt(await res.blob(), path);
-      } catch (e) {
-        showToast('⚠️ ' + e.message);
-      }
+      checkAiConsent(async () => {
+        try {
+          const res = await fetch(path);
+          if (!res.ok) throw new Error('예시 이미지 HTTP ' + res.status);
+          document.getElementById('uploadLabel').textContent = `${uiLang === 'EN' ? 'Public sample' : '공개 예시'}: ${path}`;
+          scanReceipt(await res.blob(), path);
+        } catch (e) {
+          showToast('⚠️ ' + e.message);
+        }
+      });
     }
 
     function resetAuditCard() {
@@ -943,14 +995,14 @@
       document.getElementById('ocrLineCount').textContent = '0';
       setStage('stageOcr', 'run', '① 글자 인식 (Nemotron-3.5-Super-VL): 읽는 중...');
       setStage('stageParse', 'wait', '② 숫자·항목 파싱: 대기');
-      setStage('stageReason', 'wait', '③ 550B 인과 추론: 대기');
+      setStage('stageReason', 'wait', '③ NVIDIA Nemotron 추론: 대기');
 
       try {
         const dataUrl = await imageToDataUrl(blob);
         document.getElementById('receiptPreview').src = dataUrl;
         const res = await fetch('/api/scan-receipt', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: dataUrl })
+          body: JSON.stringify({ image: dataUrl, consent: true })
         });
         const data = await res.json();
         if (!res.ok || data.status !== 'success') throw new Error(data.error || ('HTTP ' + res.status));
@@ -974,12 +1026,12 @@
         document.getElementById('parsedCurrency').textContent = p.currency && p.currency !== 'UNKNOWN' ? `(${p.currency})` : '';
         document.getElementById('parsedItems').innerHTML = items.length
           ? items.map(it => `<tr class="border-t border-slate-800"><td class="py-0.5 pr-1">${escapeHtml(it.name)}${it.noncovered ? ' <span class="text-amber-400">[비급여]</span>' : ''}</td><td class="font-mono text-slate-400">${escapeHtml(it.code || '-')}</td><td class="text-right font-mono">${escapeHtml(it.amounts.join(' / '))}</td></tr>`).join('')
-          : '<tr><td colspan="3" class="text-slate-500 py-1">항목 줄을 찾지 못했습니다. OCR 원문은 550B에 그대로 전달됩니다.</td></tr>';
+          : '<tr><td colspan="3" class="text-slate-500 py-1">항목 줄을 찾지 못했습니다. OCR 원문은 Nemotron 추론 엔진에 그대로 전달됩니다.</td></tr>';
         document.getElementById('parsedSummary').classList.remove('hidden');
 
         currentReceipt = { lines, parsed: p, source: name };
         btn.disabled = false;
-        document.getElementById('auditHint').textContent = '인식 완료. 감사를 실행하면 550B가 내 기록과 대조합니다.';
+        document.getElementById('auditHint').textContent = '인식 완료. 감사를 실행하면 Nemotron 엔진이 내 기록과 대조합니다.';
         resetAuditCard();
         updatePipelineInputs();
       } catch (e) {
@@ -1000,7 +1052,7 @@
           '손목': '손목', '골반': '골반', '무릎': '무릎', '발목': '발목'
         },
         condTitle: '상기 병 (환자 평소 기저질환 / 진단명)',
-        condBadge: '550B 인과추론 입력',
+        condBadge: 'NVIDIA AI 추론 입력',
         conditions: [
           '요추 디스크 (추간판탈출)',
           '척추관 협착증',
@@ -1019,7 +1071,7 @@
         },
         jumpToAuditText: '⚡ 병원비 영수증 추론 감사로 바로 이동',
         sec2Title: '병원비 영수증 정밀 추론 감사',
-        sec2Sub: '영수증을 찍으면 ① NVIDIA 비전 모델이 글자를 읽고 ② 파서가 항목·금액·코드를 뽑은 뒤 ③ Nemotron 3 Ultra 550B가 내 통증 기록과 대조해 원무과 확인 질의서 참고 초안을 씁니다.',
+        sec2Sub: '영수증을 찍으면 ① NVIDIA 비전 모델이 글자를 읽고 ② 파서가 항목·금액·코드를 뽑은 뒤 ③ NVIDIA Nemotron 엔진이 내 통증 기록과 대조해 원무과 확인 질의서 참고 초안을 씁니다.',
         uploadLabel: '영수증 촬영 또는 사진 첨부',
         sampleLabelText: '공개된 실제 영수증으로 시험:',
         sampleBtn1: '예시 1',
@@ -1036,11 +1088,11 @@
         auditLetterBoxSummary: '질의서 초안 전문 보기',
         auditDisclaimerText: '* 본 문서는 의료적 진단이나 법률적 판정이 아니며, 환자가 병원 원무과에 확인을 요청할 때 참고하는 질의서 초안입니다.',
         copyDisputeBtnText: '📋 원무과 제출용 질의서 초안 복사',
-        pipeHeaderText: 'NVIDIA Nemotron 3 Ultra 550B에 들어가는 입력',
+        pipeHeaderText: 'NVIDIA Nemotron Reasoning Engine에 들어가는 입력',
         pipeCol1Label: '① 기저질환 & 통증',
         pipeCol2Label: '② 활동량',
         pipeCol3Label: '③ 영수증 항목',
-        pipeExplText: '<strong class="text-cyan-300">역할 분담:</strong> 글자 인식과 파서는 영수증에 <em>무엇이 적혀 있는지</em>만 알아냅니다. 550B는 내 기저질환·통증·활동량을 그 청구 항목들과 함께 놓고, 어떤 항목에 대해 필요성·급여 여부·코드 수준·중복 여부를 물어볼 수 있는지 추론해 정중한 질문으로 바꿉니다.',
+        pipeExplText: '<strong class="text-cyan-300">역할 분담:</strong> 글자 인식과 파서는 영수증에 <em>무엇이 적혀 있는지</em>만 알아냅니다. Nemotron 모델은 내 기저질환·통증·활동량을 그 청구 항목들과 함께 놓고, 어떤 항목에 대해 필요성·급여 여부·코드 수준·중복 여부를 물어볼 수 있는지 추론해 정중한 질문으로 바꿉니다.',
         sec3Title: '스마트 웨어러블 & 통증 추적',
         sec3Badge: '직접 입력',
         wStepsTodayLabel: '오늘 걸음',
@@ -1052,7 +1104,16 @@
         sec4Title: '최근 통증 & 감사 기록 일지',
         tabHomeText: '홈/기록',
         tabBodyText: '바디맵',
-        tabDoctorText: '주치의제출'
+        tabDoctorText: '주치의제출',
+        consentModalTitle: '안전한 AI 분석을 위한 동의 안내',
+        consentModalSub: '데이터 최소화 및 개인정보 보호 규정 준수',
+        consentModalP1: '선택하신 <strong class="text-cyan-300">영수증 이미지</strong>와 <strong class="text-cyan-300">통증·활동량 요약 데이터</strong>는 병원 원무과 질의서 초안 작성을 위해 <strong class="text-cyan-300">NVIDIA Nemotron AI(Nebius Token Factory)</strong>로 안전하게 전송되어 분석됩니다.',
+        consentBullet1: '성명, 주민등록번호, 환자등록번호는 전송 시 자동 마스킹(***) 처리됩니다.',
+        consentBullet2: '본 문서는 원무과 확인 참고용이며, 법적·의료적 진단이 아닙니다.',
+        consentBullet3: '동의하지 않으셔도 로컬 통증 일지와 영수증 표는 계속 사용하실 수 있습니다.',
+        consentCheckLabel: '[필수] 외부 AI 분석 및 질의서 생성에 동의합니다.',
+        consentDeclineBtn: '동의 안 함',
+        consentConfirmBtnText: '동의하고 분석 진행'
       },
       EN: {
         headerSubtitle: 'Patient-Centric Subjective Pain Archive',
@@ -1064,7 +1125,7 @@
           '손목': 'Wrists', '골반': 'Pelvis', '무릎': 'Knees', '발목': 'Ankles'
         },
         condTitle: 'Pre-existing Condition / Diagnosis',
-        condBadge: '550B Causal Input',
+        condBadge: 'NVIDIA AI Reasoning Input',
         conditions: [
           'Lumbar Disc Herniation',
           'Spinal Stenosis',
@@ -1083,13 +1144,13 @@
         },
         jumpToAuditText: '⚡ Jump to Medical Bill Audit',
         sec2Title: 'Medical Bill Causal Audit',
-        sec2Sub: 'Photograph a bill: ① NVIDIA vision models transcribe text, ② deterministic parser extracts items & codes, ③ Nemotron 3 Ultra 550B cross-references your pain telemetry to draft a hospital inquiry letter.',
+        sec2Sub: 'Photograph a bill: ① NVIDIA vision models transcribe text, ② deterministic parser extracts items & codes, ③ NVIDIA Nemotron Engine cross-references your pain telemetry to draft a hospital inquiry letter.',
         uploadLabel: 'Take Photo or Upload Bill',
         sampleLabelText: 'Test with public real bills:',
         sampleBtn1: 'Sample 1',
         sampleBtn2: 'Sample 2',
         sampleSourceText: 'Source: Authentic hospital receipts on Wikimedia Commons (CC License). Processes through the identical OCR/reasoning pipeline as user uploads.',
-        startAuditBtnText: '⚡ Run 550B Clinical-Financial Audit',
+        startAuditBtnText: '⚡ Run Clinical-Financial Audit',
         auditHint: 'Upload and scan a bill first to enable audit.',
         auditBillHeader: 'Hospital Billing Clarification Inquiry Draft',
         auditStatusWaiting: 'Waiting',
@@ -1100,11 +1161,11 @@
         auditLetterBoxSummary: 'View Full Inquiry Letter Draft',
         auditDisclaimerText: '* This document is not a medical diagnosis or legal determination; it is an inquiry draft for patients to consult their hospital billing office.',
         copyDisputeBtnText: '📋 Copy Hospital Inquiry Letter Draft',
-        pipeHeaderText: 'Live Inputs to NVIDIA Nemotron 3 Ultra 550B',
+        pipeHeaderText: 'Live Inputs to NVIDIA Nemotron Reasoning Engine',
         pipeCol1Label: '① Condition & Pain',
         pipeCol2Label: '② Activity',
         pipeCol3Label: '③ Bill Items',
-        pipeExplText: '<strong class="text-cyan-300">Division of Labor:</strong> OCR and parsing strictly identify <em>what is written</em> on the bill. The 550B model correlates your pre-existing conditions, pain telemetry, and activity drops with billed items to identify valid inquiries regarding necessity, coverage, coding levels, or bundling.',
+        pipeExplText: '<strong class="text-cyan-300">Division of Labor:</strong> OCR and parsing strictly identify <em>what is written</em> on the bill. The Nemotron model correlates your pre-existing conditions, pain telemetry, and activity drops with billed items to identify valid inquiries regarding necessity, coverage, coding levels, or bundling.',
         sec3Title: 'Smart Wearable & Pain Telemetry',
         sec3Badge: 'Manual Input',
         wStepsTodayLabel: "Today's Steps",
@@ -1116,7 +1177,16 @@
         sec4Title: 'Recent Pain & Audit Journal',
         tabHomeText: 'Home/Log',
         tabBodyText: 'Body Map',
-        tabDoctorText: 'Doctor Summary'
+        tabDoctorText: 'Doctor Summary',
+        consentModalTitle: 'Consent for Secure AI Processing',
+        consentModalSub: 'Compliance with data minimization & patient privacy',
+        consentModalP1: 'Your selected <strong class="text-cyan-300">receipt image</strong> and <strong class="text-cyan-300">pain/activity telemetry</strong> will be securely processed by <strong class="text-cyan-300">NVIDIA Nemotron AI (Nebius Token Factory)</strong> solely to draft your hospital billing inquiry.',
+        consentBullet1: 'Personal identifiers (name, national ID, chart no.) are automatically masked (***).',
+        consentBullet2: 'This document is an administrative inquiry draft, not a legal or medical diagnosis.',
+        consentBullet3: 'Declining consent still allows full access to local pain journals and bill tables.',
+        consentCheckLabel: '[Required] I agree to external AI processing to draft a billing inquiry.',
+        consentDeclineBtn: 'Decline',
+        consentConfirmBtnText: 'Agree & Proceed'
       }
     };
 
@@ -1177,6 +1247,16 @@
       setTxt('tabHomeText', t.tabHomeText);
       setTxt('tabBodyText', t.tabBodyText);
       setTxt('tabDoctorText', t.tabDoctorText);
+
+      setTxt('consentModalTitle', t.consentModalTitle);
+      setTxt('consentModalSub', t.consentModalSub);
+      setHtml('consentModalP1', t.consentModalP1);
+      setTxt('consentBullet1', t.consentBullet1);
+      setTxt('consentBullet2', t.consentBullet2);
+      setTxt('consentBullet3', t.consentBullet3);
+      setTxt('consentCheckLabel', t.consentCheckLabel);
+      setTxt('consentDeclineBtn', t.consentDeclineBtn);
+      setTxt('consentConfirmBtnText', t.consentConfirmBtnText);
 
       // 8 Quick chips labels
       const chips = document.querySelectorAll('.quick-chip');
@@ -1297,7 +1377,7 @@
       loading.classList.remove('hidden');
       resultCard.classList.add('opacity-50');
       btn.disabled = true;
-      setStage('stageReason', 'run', '③ 550B 인과 추론: 진행 중...');
+      setStage('stageReason', 'run', uiLang === 'EN' ? '③ NVIDIA Nemotron Reasoning: in progress...' : '③ NVIDIA Nemotron 추론: 진행 중...');
 
       const w = getWearable();
       const payload = {
@@ -1307,7 +1387,7 @@
         vas: currentVas,
         pins: frontPins.length + backPins.length,
         wearable: { steps_today: w.stepsToday ?? '', steps_baseline: w.stepsBase ?? '', arousal_min: w.arousal ?? '' },
-        receipt: { lines: currentReceipt.lines, parsed: currentReceipt.parsed }
+        receipt: { lines: currentReceipt.lines, parsed: currentReceipt.parsed }, consent: true
       };
 
       try {
@@ -1342,13 +1422,13 @@
         badge.className = 'text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-bold border border-cyan-800';
         document.getElementById('auditModelBadge').textContent = data.model;
         document.getElementById('auditLatencyBadge').textContent = `${data.live_latency_ms}ms (Live API)`;
-        setStage('stageReason', 'ok', `③ 550B 인과 추론: 완료 (${data.live_latency_ms}ms)`);
-        showToast(`Nemotron 3 Ultra 550B 질의서 초안 생성 (${data.live_latency_ms}ms)`);
+        setStage('stageReason', 'ok', `${uiLang === 'EN' ? '③ NVIDIA Nemotron Reasoning: Done' : '③ NVIDIA Nemotron 추론: 완료'} (${data.live_latency_ms}ms)`);
+        showToast(`${uiLang === 'EN' ? 'NVIDIA Nemotron inquiry draft generated' : 'NVIDIA Nemotron 질의서 초안 생성'} (${data.live_latency_ms}ms)`);
       } catch (err) {
         document.getElementById('auditBillHeader').textContent = '⚠️ 추론 실패';
         document.getElementById('reductionAmount').textContent = '-';
         document.getElementById('reductionReason').textContent = '서버 또는 Nebius API 호출 중 오류가 발생했습니다: ' + (err.message || '네트워크 오류');
-        setStage('stageReason', 'err', '③ 550B 인과 추론 실패: ' + (err.message || ''));
+        setStage('stageReason', 'err', `${uiLang === 'EN' ? '③ NVIDIA Nemotron reasoning failed: ' : '③ NVIDIA Nemotron 추론 실패: '}` + (err.message || ''));
         showToast('⚠️ 감사 실행 중 오류가 발생했습니다.');
       } finally {
         loading.classList.add('hidden');
@@ -1555,6 +1635,52 @@
         `;
         container.appendChild(div);
       });
+    }
+
+
+    // AI Privacy Consent State Management
+    let aiConsentGranted = localStorage.getItem('ai_consent_granted') === 'true';
+    let pendingConsentAction = null;
+
+    function openConsentModal(actionFn) {
+      pendingConsentAction = actionFn;
+      document.getElementById('consentAgreeCheck').checked = false;
+      document.getElementById('aiConsentModal').classList.remove('hidden');
+    }
+
+    function closeConsentModal() {
+      document.getElementById('aiConsentModal').classList.add('hidden');
+    }
+
+    function confirmConsent() {
+      const check = document.getElementById('consentAgreeCheck');
+      if (!check.checked) {
+        showToast(uiLang === 'EN' ? 'Please check the consent box to proceed.' : '동의 체크박스에 체크해 주세요.');
+        return;
+      }
+      aiConsentGranted = true;
+      localStorage.setItem('ai_consent_granted', 'true');
+      closeConsentModal();
+      showToast(uiLang === 'EN' ? 'AI processing consent granted.' : 'AI 분석 동의가 완료되었습니다.');
+      if (typeof pendingConsentAction === 'function') {
+        const fn = pendingConsentAction;
+        pendingConsentAction = null;
+        fn();
+      }
+    }
+
+    function declineConsent() {
+      closeConsentModal();
+      pendingConsentAction = null;
+      showToast(uiLang === 'EN' ? 'Consent declined. Local features remain available.' : '동의가 취소되었습니다. 로컬 기록 기능은 이용 가능합니다.');
+    }
+
+    function checkAiConsent(actionFn) {
+      if (aiConsentGranted) {
+        actionFn();
+      } else {
+        openConsentModal(actionFn);
+      }
     }
 
     // Detail Modal
