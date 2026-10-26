@@ -1210,6 +1210,18 @@
         const b = document.getElementById('auditStatusBadge');
         if (b) b.textContent = t.auditStatusWaiting;
       }
+
+      // Update placeholders and dynamic lists
+      const isEn = lang === 'EN';
+      const elToday = document.getElementById('wStepsToday');
+      const elBase = document.getElementById('wStepsBase');
+      const elArousal = document.getElementById('wArousal');
+      if (elToday) elToday.placeholder = isEn ? 'e.g. 1200' : '예: 1200';
+      if (elBase) elBase.placeholder = isEn ? 'e.g. 4500' : '예: 4500';
+      if (elArousal) elArousal.placeholder = isEn ? 'e.g. 40' : '예: 40';
+
+      updateWearableUI();
+      renderJournalList();
     }
 
     // Header toggle: switches UI & output language
@@ -1234,11 +1246,14 @@
     function updateWearableUI() {
       const w = getWearable();
       const el = document.getElementById('wDropText');
+      const isEn = uiLang === 'EN';
       if (w.drop != null) {
-        el.textContent = `평소 ${w.stepsBase.toLocaleString()}보 대비 오늘 ${w.stepsToday.toLocaleString()}보: ${w.drop > 0 ? '+' : ''}${w.drop}%`;
+        el.textContent = isEn
+          ? `Baseline ${w.stepsBase.toLocaleString()} steps vs Today ${w.stepsToday.toLocaleString()}: ${w.drop > 0 ? '+' : ''}${w.drop}%`
+          : `평소 ${w.stepsBase.toLocaleString()}보 대비 오늘 ${w.stepsToday.toLocaleString()}보: ${w.drop > 0 ? '+' : ''}${w.drop}%`;
         el.className = `text-[11px] mb-1 font-semibold ${w.drop <= -30 ? 'text-rose-400' : 'text-slate-300'}`;
       } else {
-        el.textContent = '걸음 수를 넣으면 평소 대비 변화율을 계산합니다.';
+        el.textContent = isEn ? 'Enter step counts to calculate % change vs baseline.' : '걸음 수를 넣으면 평소 대비 변화율을 계산합니다.';
         el.className = 'text-[11px] text-slate-400 mb-1';
       }
       updatePipelineInputs();
@@ -1247,18 +1262,30 @@
     function updatePipelineInputs() {
       const c = document.getElementById('pipeConditionText');
       if (!c) return;
-      c.textContent = `${selectedCondition || '미선택'} / VAS ${currentVas}`;
+      const isEn = uiLang === 'EN';
+      const condMap = {
+        '요추 디스크(추간판 탈출증)': 'Lumbar Disc Herniation',
+        '요추 디스크 (추간판탈출)': 'Lumbar Disc Herniation',
+        '척추관 협착증': 'Spinal Stenosis',
+        '만성 관절염 / 류마티스': 'Chronic Arthritis',
+        '급성 염좌 / 근막통증': 'Acute Sprain'
+      };
+      const displayCond = isEn ? (condMap[selectedCondition] || selectedCondition || 'Not selected') : (selectedCondition || '미선택');
+      c.textContent = `${displayCond} / VAS ${currentVas}`;
       const w = getWearable();
       const parts = [];
-      if (w.drop != null) parts.push(`걸음 ${w.drop > 0 ? '+' : ''}${w.drop}%`);
-      if (w.arousal != null) parts.push(`밤 ${w.arousal}분`);
-      document.getElementById('pipeWearableText').textContent = parts.join(' / ') || '미입력';
+      if (w.drop != null) parts.push(isEn ? `Steps ${w.drop > 0 ? '+' : ''}${w.drop}%` : `걸음 ${w.drop > 0 ? '+' : ''}${w.drop}%`);
+      if (w.arousal != null) parts.push(isEn ? `Awake ${w.arousal}m` : `밤 ${w.arousal}분`);
+      document.getElementById('pipeWearableText').textContent = parts.join(' / ') || (isEn ? 'Not entered' : '미입력');
       const r = document.getElementById('pipeReceiptText');
       if (currentReceipt) {
         const p = currentReceipt.parsed || {};
-        r.textContent = `${(p.items || []).length}개 항목${p.total != null ? ' / ' + p.total.toLocaleString() : ''}`;
+        const count = (p.items || []).length;
+        r.textContent = isEn
+          ? `${count} items${p.total != null ? ' / ' + p.total.toLocaleString() : ''}`
+          : `${count}개 항목${p.total != null ? ' / ' + p.total.toLocaleString() : ''}`;
       } else {
-        r.textContent = '미인식';
+        r.textContent = isEn ? 'Not scanned' : '미인식';
       }
     }
 
@@ -1474,8 +1501,9 @@
     function renderJournalList() {
       const container = document.getElementById('journalList');
       const countBadge = document.getElementById('journalCountBadge');
+      const isEn = uiLang === 'EN';
       if (countBadge) {
-        countBadge.textContent = `${journalData.length}건 저장됨`;
+        countBadge.textContent = isEn ? `${journalData.length} logs saved` : `${journalData.length}건 저장됨`;
       }
       container.innerHTML = '';
 
@@ -1483,32 +1511,45 @@
         container.innerHTML = `
           <div class="py-6 text-center text-slate-500 bg-slate-900/40 rounded-xl border border-dashed border-slate-800">
             <i class="fa-regular fa-folder-open text-xl mb-1.5 text-slate-600 block"></i>
-            <p class="text-xs">저장된 기록 일지가 없습니다.</p>
+            <p class="text-xs">${isEn ? 'No journal entries saved.' : '저장된 기록 일지가 없습니다.'}</p>
           </div>
         `;
         return;
       }
 
+      const regMap = {'머리':'Head','목/경추':'Neck','어깨':'Shoulders','허리':'Lower Back','손목':'Wrists','골반':'Pelvis','무릎':'Knees','발목':'Ankles'};
       journalData.forEach((item) => {
+        let displayRegions = item.regions || '';
+        let displayPins = item.pins || '';
+        if (isEn) {
+          for (const [k, v] of Object.entries(regMap)) {
+            displayRegions = displayRegions.split(k).join(v);
+          }
+          displayPins = displayPins.split('앞면').join('Front ').split('뒷면').join('Back ').split('개').join(' pins');
+        }
+        const sampleBadge = item.sample ? `<span class="text-[9px] px-1 rounded bg-slate-700 text-slate-300">${isEn ? 'Sample' : '예시'}</span>` : '';
+        const detailTxt = isEn ? 'Detail' : '상세';
+        const deleteTxt = isEn ? 'Delete' : '삭제';
+
         const div = document.createElement('div');
         div.className = 'p-3 rounded-xl bg-slate-900/60 border border-slate-700/50 flex items-center justify-between hover:border-slate-600 transition-all';
         div.innerHTML = `
           <div class="flex-1 pr-2">
             <div class="flex items-center space-x-2">
-              <span class="text-xs font-bold text-white">${item.date}</span>${item.sample ? '<span class="text-[9px] px-1 rounded bg-slate-700 text-slate-300">예시</span>' : ''}
+              <span class="text-xs font-bold text-white">${item.date}</span>${sampleBadge}
               <span class="text-[10px] px-1.5 py-0.2 rounded font-semibold ${item.vas >= 7 ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">
                 VAS ${item.vas}
               </span>
             </div>
-            <p class="text-[11px] text-slate-300 mt-0.5">${item.regions} · ${item.pins}</p>
+            <p class="text-[11px] text-slate-300 mt-0.5">${displayRegions} · ${displayPins}</p>
           </div>
           <div class="flex items-center space-x-1.5">
             <button type="button" onclick="viewDetail(${item.id})" class="text-[11px] text-cyan-400 bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-800/80 px-2 py-1 rounded-lg font-semibold transition-all">
-              상세
+              ${detailTxt}
             </button>
-            <button type="button" onclick="deleteJournal(${item.id}, event)" title="기록 삭제" class="text-[11px] text-rose-400 bg-rose-950/60 hover:bg-rose-900 border border-rose-800/70 px-2 py-1 rounded-lg font-semibold transition-all flex items-center space-x-1">
-              <i class="fa-regular fa-trash-can"></i>
-              <span>삭제</span>
+            <button type="button" onclick="deleteJournal(${item.id}, event)" title="${isEn ? 'Delete log' : '기록 삭제'}" class="text-[11px] text-rose-400 bg-rose-950/60 hover:bg-rose-900 border border-rose-800/70 px-2 py-1 rounded-lg font-semibold transition-all flex items-center space-x-1">
+              <i class="fa-regular fa-trash-can text-[10px]"></i>
+              <span>${deleteTxt}</span>
             </button>
           </div>
         `;
