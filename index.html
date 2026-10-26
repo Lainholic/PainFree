@@ -310,7 +310,13 @@
             <span>NVIDIA Nemotron</span>
           </span>
         </div>
-        <p id="sec2Sub" class="text-xs text-slate-400 mb-3">영수증을 찍으면 ① NVIDIA 비전 모델이 글자를 읽고 ② 파서가 항목·금액·코드를 뽑은 뒤 ③ NVIDIA Nemotron 엔진이 내 통증 기록과 대조해 원무과 확인 질의서 참고 초안을 씁니다.</p>
+        <p id="sec2Sub" class="text-xs text-slate-400 mb-2">영수증을 찍으면 ① NVIDIA 비전 모델이 글자를 읽고 ② 파서가 항목·금액·코드를 뽑은 뒤 ③ NVIDIA Nemotron 엔진이 내 통증 기록과 대조해 원무과 확인 질의서 참고 초안을 씁니다.</p>
+
+        <!-- Privacy & Compliance Notice for Hackathon Reviewers -->
+        <div class="mb-3 inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-blue-950/40 text-blue-300 text-[10px] border border-blue-500/30 font-medium">
+          <i class="fa-solid fa-shield-halved text-blue-400 text-xs"></i>
+          <span id="complianceNotice">🛡️ 개인정보 보호 준수: 본 시연은 비식별화된 합성 데모 데이터(De-identified / Synthetic Data)를 사용합니다.</span>
+        </div>
 
         <!-- Upload & Public Real Samples -->
         <div class="space-y-2 mb-3">
@@ -408,6 +414,17 @@
                 <span id="medAdvisoryTag" class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-semibold border border-amber-500/20">환자 일상 안내</span>
               </div>
               <div id="medDetectedItems" class="flex flex-wrap gap-1 text-[9px]"></div>
+
+              <!-- In-Hospital Procedural Medications Distinction -->
+              <div id="medProceduralBox" class="hidden p-2 rounded bg-indigo-950/40 border border-indigo-500/30 text-[11px] text-indigo-200/90 leading-relaxed space-y-1">
+                <div class="flex items-center space-x-1.5 text-indigo-300 font-semibold text-[10px]">
+                  <i class="fa-solid fa-hospital-user text-indigo-400"></i>
+                  <span id="medProceduralTitle">원내/수술 중 투여 의약품 (In-Hospital / Procedural)</span>
+                </div>
+                <div id="medProceduralItems" class="flex flex-wrap gap-1 text-[9px]"></div>
+                <p id="medProceduralNote" class="text-[10px] text-indigo-300/80 leading-tight">원내 의료진의 직접 감독 하에 시술·처치 중 투여된 약품이며, 환자 임의 복용 대상이 아닙니다.</p>
+              </div>
+
               <div class="p-2 rounded bg-amber-950/20 border border-amber-500/20 text-[11px] text-amber-200/90 leading-relaxed flex items-start space-x-1.5">
                 <i class="fa-solid fa-triangle-exclamation text-amber-400 text-xs mt-0.5 flex-shrink-0"></i>
                 <div>
@@ -1206,8 +1223,10 @@
         detailAuditLabel: '영수증 감사 내역:',
         detailDeleteBtnText: '기록 삭제',
         detailCloseBtnText: '닫기',
+        complianceNotice: '🛡️ 개인정보 보호 준수: 본 시연은 비식별화된 합성 데모 데이터(De-identified / Synthetic Data)를 사용합니다.',
         medAdvisoryTitle: '복약·시술 일상 주의 및 권고사항',
         medAdvisoryTag: '환자 일상 안내',
+        medProceduralTitle: '원내/수술 중 투여 의약품 (In-Hospital / Procedural)',
         medCautionLabel: '일상 주의: ',
         medRecomLabel: '환자 권고: ',
         medDisclaimerText: '* 본 안내는 AI가 제공하는 일상 주의 및 건강 돌봄 참고사항이며, 전문 의료진의 진료나 처방 지시를 대신할 수 없습니다.',
@@ -1325,10 +1344,12 @@
         detailAuditLabel: 'Receipt Audit Entry:',
         detailDeleteBtnText: 'Delete Entry',
         detailCloseBtnText: 'Close',
-        medAdvisoryTitle: 'Medication & Procedure Precautions & Advisory',
+        complianceNotice: '🛡️ Privacy Compliance: Demo operates on de-identified / synthetic sample data',
+        medAdvisoryTitle: 'Medication & Procedural Care Advisory',
         medAdvisoryTag: 'Patient Advisory',
-        medCautionLabel: 'Daily Precautions: ',
-        medRecomLabel: 'Patient Guidance: ',
+        medProceduralTitle: 'In-Hospital / Procedural Medications',
+        medCautionLabel: 'Post-Care Caution: ',
+        medRecomLabel: 'Patient Care Advice: ',
         medDisclaimerText: '* This advisory provides general AI-assisted daily care precautions and cannot replace professional medical advice from your physician.',
         stageOcrDefault: '① Vision OCR (Nemotron-3.5-Super-VL): Waiting',
         stageParseDefault: '② Deterministic Parser: Waiting',
@@ -1389,8 +1410,10 @@
       setTxt('pipeCol1Label', t.pipeCol1Label);
       setTxt('pipeCol2Label', t.pipeCol2Label);
       setTxt('pipeCol3Label', t.pipeCol3Label);
+      setTxt('complianceNotice', t.complianceNotice);
       setTxt('medAdvisoryTitle', t.medAdvisoryTitle);
       setTxt('medAdvisoryTag', t.medAdvisoryTag);
+      setTxt('medProceduralTitle', t.medProceduralTitle);
       setTxt('medCautionLabel', t.medCautionLabel);
       setTxt('medRecomLabel', t.medRecomLabel);
       setTxt('medDisclaimerText', t.medDisclaimerText);
@@ -1629,6 +1652,21 @@
           } else {
             itemsBox.classList.add('hidden');
           }
+
+          // In-Hospital Procedural Medication Separation
+          const procBox = document.getElementById('medProceduralBox');
+          const procItemsBox = document.getElementById('medProceduralItems');
+          const pItems = Array.isArray(adv.procedural_items) ? adv.procedural_items : [];
+          if (pItems.length > 0) {
+            procItemsBox.innerHTML = pItems.map(it => `<span class="px-1.5 py-0.5 rounded bg-indigo-900/60 text-indigo-200 border border-indigo-700/60 font-mono">🏥 ${escapeHtml(it)}</span>`).join('');
+            if (adv.procedural_note) {
+              document.getElementById('medProceduralNote').textContent = adv.procedural_note;
+            }
+            procBox.classList.remove('hidden');
+          } else {
+            procBox.classList.add('hidden');
+          }
+
           medCard.classList.remove('hidden');
         } else {
           medCard.classList.add('hidden');

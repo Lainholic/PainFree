@@ -63,8 +63,8 @@ def _prepare_image(data_url):
         buf = io.BytesIO()
         im.save(buf, format="JPEG", quality=92)
         return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
-    except Exception:
-        return data_url
+    except Exception as e:
+        raise ValueError(f"유효하지 않거나 손상된 이미지 데이터입니다: {e}")
 
 
 # ---------------------------------------------------------------- Stage 1: OCR
@@ -361,11 +361,16 @@ def build_reasoning_messages(ui_lang, patient, wearable, receipt):
         "USA: CPT/E&M coding level, No Surprises Act itemized bill; Taiwan: NHI coverage and self-pay 自費). "
         "Only cite items that actually appear in the OCR text or parsed items. "
         "PRIVACY: never copy names, ID numbers, chart numbers, phone numbers or addresses; use placeholders like [환자 이름] / [Patient Name]. "
-        "MEDICATION/INJECTION ADVISORY (Tone & Manner: Strictly Educational Caution & Supportive Patient Advisory): "
-        "Examine the receipt for any billed medications, injections (e.g. nerve blocks, steroid shots, joint injections, NSAIDs, analgesics, muscle relaxants), or clinical therapies. "
-        "NEVER issue clinical diagnoses or orders to stop medication. Use strictly cautious, supportive, educational guidance: "
-        "- caution: Daily activity precautions (e.g., potential drowsiness, dizziness, avoiding driving/machinery, resting after local injection). "
-        "- recommendation: Supportive patient care advice (e.g., taking oral analgesics with food to avoid gastric upset, staying hydrated, consulting treating doctor or pharmacist if symptoms persist). "
+        "MEDICATION/INJECTION ADVISORY (Clinical Distinction & Educational Guidance): "
+        "Examine the receipt for any billed medications, injections, anesthetics, or clinical therapies. "
+        "CRITICAL CLINICAL DISTINCTION: Differentiate between: "
+        "(1) In-Hospital Procedural / Surgical Medications (e.g. general anesthetics like Propofol, neuromuscular blockers like Rocuronium, procedural local blocks like Bupivacaine/Lidocaine, Glycopyrrolate, surgical IVs): "
+        "These are administered by clinical staff during the procedure under supervision; they are NOT for home self-administration. Put these in procedural_items. "
+        "Set procedural_note to a clear note clarifying that these were administered in-hospital during clinical care. "
+        "(2) Discharge / Home-Care Precautions: For any prescribed take-home analgesics/anti-inflammatories or general post-procedure discharge recovery: "
+        "- caution: Post-procedure/discharge daily activity precautions (e.g., potential residual drowsiness, dizziness, avoiding driving/machinery if sedatives or opioids were administered, resting after procedural care). "
+        "- recommendation: Discharge patient care guidance (e.g., follow specific discharge instructions provided by the hospital, consult physician or pharmacist before combining OTC pain medications). "
+        "NEVER issue clinical diagnoses or prescriptive orders to stop medications. "
         f"LANGUAGE: reasoning, questions, inquiry_letter, and medication_advisory MUST be written in {out_lang}. (target_item must preserve the exact billed line from the receipt). "
         f"If the hospital's native language differs from {out_lang}, also provide inquiry_letter_local written in the hospital's language; "
         "otherwise set it to an empty string. Respond with JSON only: "
@@ -375,7 +380,7 @@ def build_reasoning_messages(ui_lang, patient, wearable, receipt):
         '"inquiry_letter": "polite inquiry draft to the hospital billing office", '
         '"inquiry_letter_local": "", '
         '"ocr_uncertainties": "anything unreadable or ambiguous", '
-        '"medication_advisory": {"detected_items": ["item1"], "caution": "Daily precautions", "recommendation": "Patient care advice"}}'
+        '"medication_advisory": {"detected_items": ["item1"], "procedural_items": ["item2"], "procedural_note": "In-hospital procedural note", "caution": "Daily precautions", "recommendation": "Patient care advice"}}'
     )
     user = (
         "PATIENT RECORD (entered by patient)\n"
@@ -398,10 +403,15 @@ def build_reasoning_messages(ui_lang, patient, wearable, receipt):
 
 
 def _extract_json(raw_text):
+    if "</think>" in raw_text:
+        raw_text = raw_text.split("</think>", 1)[1]
     if "```json" in raw_text:
         raw_text = raw_text.split("```json", 1)[1].split("```", 1)[0]
+    elif "```" in raw_text:
+        raw_text = raw_text.split("```", 1)[1].split("```", 1)[0]
     s, e = raw_text.find("{"), raw_text.rfind("}")
     if s == -1 or e == -1:
+        print(f"[!] Nemotron raw response without JSON:\n{raw_text[:1000]}")
         raise ValueError("model returned no JSON")
     candidate = raw_text[s:e + 1]
     try:
@@ -420,7 +430,8 @@ def reason(base_url, api_key, ui_lang, patient, wearable, receipt):
     t0 = time.time()
     data = _post(base_url, api_key, {
         "model": REASONING_MODEL, "temperature": 0.1, "max_tokens": 3500,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}, timeout=120)
+        "chat_template_kwargs": {"enable_thinking": False},
+        "messages": [{"role": "system", "content": "/no_think\n" + system}, {"role": "user", "content": user}]}, timeout=120)
     raw = data["choices"][0]["message"].get("content") or ""
     result = _extract_json(raw)
     if not isinstance(result, dict):
@@ -434,11 +445,40 @@ def reason(base_url, api_key, ui_lang, patient, wearable, receipt):
     result.setdefault("inquiry_letter_local", "")
     result.setdefault("ocr_uncertainties", "")
     if not isinstance(result.get("medication_advisory"), dict):
-        result["medication_advisory"] = {
-            "detected_items": [],
-            "caution": "시술 및 투약 후 무리한 활동을 피하고 충분한 휴식을 취하시기 바랍니다." if ui_lang == "KR" else "Avoid strenuous activity and rest comfortably following medical procedures.",
-            "recommendation": "특이 증상이나 통증 악화 시 담당 의료진이나 약사와 상담하시기 바랍니다." if ui_lang == "KR" else "Consult your physician or pharmacist if unexpected symptoms persist."
-        }
+        result["medication_advisory"] = {}
+    adv = result["medication_advisory"]
+    if not isinstance(adv.get("detected_items"), list):
+        adv["detected_items"] = []
+    if not isinstance(adv.get("procedural_items"), list):
+        adv["procedural_items"] = []
+
+    # Deterministic in-hospital procedural medication classification
+    procedural_kws = ("propofol", "rocuronium", "bupivacaine", "lidocaine", "glycopyrrolate",
+                      "scopolamine", "anesthesia", "paralytic", "block", "sedation", "마취", "근이완", "차단술", "주사")
+    for it in adv["detected_items"]:
+        it_lower = str(it).lower()
+        if any(kw in it_lower for kw in procedural_kws) and it not in adv["procedural_items"]:
+            adv["procedural_items"].append(it)
+
+    if adv["procedural_items"] and not adv.get("procedural_note"):
+        adv["procedural_note"] = (
+            "원내 의료진의 직접 감독 하에 시술·처치 중 투여된 약품이며, 환자 임의 복용 대상이 아닙니다."
+            if ui_lang == "KR" else
+            "Administered in-hospital under direct clinical supervision during the procedure; not intended for home self-administration."
+        )
+    if not isinstance(adv.get("caution"), str) or not adv["caution"]:
+        adv["caution"] = (
+            "시술 및 투약 후 무리한 활동을 피하고 충분한 휴식을 취하시기 바랍니다."
+            if ui_lang == "KR" else
+            "Avoid strenuous activity and rest comfortably following medical procedures."
+        )
+    if not isinstance(adv.get("recommendation"), str) or not adv["recommendation"]:
+        adv["recommendation"] = (
+            "특이 증상이나 통증 악화 시 담당 의료진이나 약사와 상담하시기 바랍니다."
+            if ui_lang == "KR" else
+            "Consult your physician or pharmacist if unexpected symptoms persist."
+        )
+    result["medication_advisory"] = adv
     result["model"] = REASONING_MODEL
     result["live_latency_ms"] = round((time.time() - t0) * 1000)
     result["is_live"] = True

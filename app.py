@@ -116,9 +116,15 @@ class HackathonHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             body = self._read_json(400_000)
-            receipt = body.get("receipt") or {}
-            raw_lines = receipt.get("lines") or []
-            if not raw_lines:
+            if not isinstance(body, dict):
+                self._send_json(400, {"status": "error", "error": "요청 본문이 올바른 JSON 객체가 아닙니다."})
+                return
+            receipt = body.get("receipt")
+            if not isinstance(receipt, dict):
+                self._send_json(400, {"status": "error", "error": "receipt 필드가 올바른 JSON 객체가 아닙니다."})
+                return
+            raw_lines = receipt.get("lines")
+            if not isinstance(raw_lines, list) or not raw_lines:
                 self._send_json(400, {"status": "error", "error": "영수증 인식 결과가 없습니다. 먼저 영수증 사진을 올려 주세요."})
                 return
             try:
