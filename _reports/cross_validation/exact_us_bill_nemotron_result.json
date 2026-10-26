@@ -1,0 +1,275 @@
+{
+  "ocr_lines": [
+    "SERVICE DATE\tDESCRIPTION\tQTY.\tAMOUNT",
+    "***\t250 PHARMACY GENERAL\t***",
+    "06/27/14\t5010790000\tSCOPOLAMINE 1.5 MG PATCH; SCOPOLAMINE\t1\t87.21",
+    "HYDROBR 1.5 MG PATCH",
+    "06/27/14\t5202506000\tLIDOCAINE/EPINEPHRINE 20ML VL;\t1\t12.50",
+    "LIDOCAINE 1%/EPI 1:100,000 20 ML MD",
+    "06/27/14\t5002419000\tBUPIVACAINE HCL 30 ML AMP;\t1\t12.50",
+    "Bupivacaine HCL/PF 0.5% 30 ML VIAL",
+    "06/27/14\t5011543000\tROCURONIUM BR 10MG/ML 5ML VL;\t1\t17.15",
+    "ROCURONIUM BR 10 MG/ML 5 ML VIAL",
+    "06/27/14\t5009420000\tGLYCOPYRROLATE 0.2MG/ML 2ML VL;\t1\t12.50",
+    "Glycopyrrolate 0.2 MG/ML 2ML VIAL",
+    "06/27/14\t5011580000\tLIDOCAINE HCL 5 ML AMP; Lidocaine HCL\t1\t12.50",
+    "1% 5 ML AMP \"PF\"",
+    "06/27/14\t5201878000\tPROPOFOL 10 MG/ML 20 ML VIAL;\t1\t12.50",
+    "Propofol 200 MG/20 ML VIAL",
+    "06/27/14\t5003899000\tHYDROMORPHONE 1MG/ML AMP;\t1\t18.00",
+    "HYDROmorphone HCI PF 1 mg/ml 1 ml A",
+    "06/27/14\t5009755000\t0.9% SODIUM CL 20 ML VIAL; Normal\t1\t12.50",
+    "Saline 20 ML VIAL \"PF\"",
+    "06/27/14\t5008495000\tPROMETHAZINE 25MG/ML AMP;\t1\t12.50",
+    "Promethazine HCL 25 mg/ml Vial",
+    "209.86",
+    "***\t258 PHARMACY IV SOLUTIONS\t***\t3L fluids?",
+    "06/27/14\t5401275000\tSOLN LR 1000\t2\t146.00",
+    "06/27/14\t5401295000\tSOLN SOD CHL 1000; SOLUTION IV .9\t1\t73.00",
+    "NACL 1000ML",
+    "219.00",
+    "***\t270 M/S SUPPLY GENERAL\t***",
+    "06/27/14\t5801905000\tENDOTRAC TUBE\t1\t9.00",
+    "9.00",
+    "***\t272 M/S SUPPLY STERILE SUPPLY\t***",
+    "06/27/14\t2501118150\tCANNULA KII FIXATION 5X100; CANNULA\t2\t70.00",
+    "KII FIXATION 5X100",
+    "06/27/14\t2501437000\tCLIP APPLIER MED ER320/ER420; CLIP\t1\t379.00",
+    "APPLIER MED 10MM ER320",
+    "06/27/14\t2501661000\tENDO SHEARS 176607; SCISSOR\t1\t305.0"
+  ],
+  "parsed": {
+    "facility": null,
+    "date": "06/27/14",
+    "currency": "USD",
+    "items": [
+      {
+        "name": "SCOPOLAMINE 1.5 MG PATCH; SCOPOLAMINE",
+        "code": "5010790000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "87.21"
+        ],
+        "amount": 87.21,
+        "noncovered": false,
+        "line_no": 2,
+        "detail": "HYDROBR 1.5 MG PATCH"
+      },
+      {
+        "name": "LIDOCAINE/EPINEPHRINE 20ML VL",
+        "code": "5202506000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "12.50"
+        ],
+        "amount": 12.5,
+        "noncovered": false,
+        "line_no": 4,
+        "detail": "LIDOCAINE 1%/EPI 1:100,000 20 ML MD"
+      },
+      {
+        "name": "BUPIVACAINE HCL 30 ML AMP",
+        "code": "5002419000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "12.50"
+        ],
+        "amount": 12.5,
+        "noncovered": false,
+        "line_no": 6,
+        "detail": "Bupivacaine HCL/PF 0.5% 30 ML VIAL"
+      },
+      {
+        "name": "ROCURONIUM BR 10MG/ML 5ML VL",
+        "code": "5011543000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "17.15"
+        ],
+        "amount": 17.15,
+        "noncovered": false,
+        "line_no": 8,
+        "detail": "ROCURONIUM BR 10 MG/ML 5 ML VIAL"
+      },
+      {
+        "name": "GLYCOPYRROLATE 0.2MG/ML 2ML VL",
+        "code": "5009420000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "12.50"
+        ],
+        "amount": 12.5,
+        "noncovered": false,
+        "line_no": 10,
+        "detail": "Glycopyrrolate 0.2 MG/ML 2ML VIAL"
+      },
+      {
+        "name": "LIDOCAINE HCL 5 ML AMP; Lidocaine HCL",
+        "code": "5011580000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "12.50"
+        ],
+        "amount": 12.5,
+        "noncovered": false,
+        "line_no": 12,
+        "detail": "1% 5 ML AMP \"PF\""
+      },
+      {
+        "name": "PROPOFOL 10 MG/ML 20 ML VIAL",
+        "code": "5201878000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "12.50"
+        ],
+        "amount": 12.5,
+        "noncovered": false,
+        "line_no": 14,
+        "detail": "Propofol 200 MG/20 ML VIAL"
+      },
+      {
+        "name": "HYDROMORPHONE 1MG/ML AMP",
+        "code": "5003899000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "18.00"
+        ],
+        "amount": 18.0,
+        "noncovered": false,
+        "line_no": 16,
+        "detail": "HYDROmorphone HCI PF 1 mg/ml 1 ml A"
+      },
+      {
+        "name": "0.9% SODIUM CL 20 ML VIAL; Normal",
+        "code": "5009755000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "12.50"
+        ],
+        "amount": 12.5,
+        "noncovered": false,
+        "line_no": 18,
+        "detail": "Saline 20 ML VIAL \"PF\""
+      },
+      {
+        "name": "PROMETHAZINE 25MG/ML AMP",
+        "code": "5008495000",
+        "section": "250 PHARMACY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "12.50"
+        ],
+        "amount": 12.5,
+        "noncovered": false,
+        "line_no": 20,
+        "detail": "Promethazine HCL 25 mg/ml Vial"
+      },
+      {
+        "name": "SOLN LR 1000",
+        "code": "5401275000",
+        "section": "258 PHARMACY IV SOLUTIONS",
+        "qty": 2,
+        "amounts": [
+          "146.00"
+        ],
+        "amount": 146.0,
+        "noncovered": false,
+        "line_no": 24
+      },
+      {
+        "name": "SOLN SOD CHL 1000; SOLUTION IV .9",
+        "code": "5401295000",
+        "section": "258 PHARMACY IV SOLUTIONS",
+        "qty": 1,
+        "amounts": [
+          "73.00"
+        ],
+        "amount": 73.0,
+        "noncovered": false,
+        "line_no": 25,
+        "detail": "NACL 1000ML"
+      },
+      {
+        "name": "ENDOTRAC TUBE",
+        "code": "5801905000",
+        "section": "270 M/S SUPPLY GENERAL",
+        "qty": 1,
+        "amounts": [
+          "9.00"
+        ],
+        "amount": 9.0,
+        "noncovered": false,
+        "line_no": 29
+      },
+      {
+        "name": "CANNULA KII FIXATION 5X100; CANNULA",
+        "code": "2501118150",
+        "section": "272 M/S SUPPLY STERILE SUPPLY",
+        "qty": 2,
+        "amounts": [
+          "70.00"
+        ],
+        "amount": 70.0,
+        "noncovered": false,
+        "line_no": 32,
+        "detail": "KII FIXATION 5X100"
+      },
+      {
+        "name": "CLIP APPLIER MED ER320/ER420; CLIP",
+        "code": "2501437000",
+        "section": "272 M/S SUPPLY STERILE SUPPLY",
+        "qty": 1,
+        "amounts": [
+          "379.00"
+        ],
+        "amount": 379.0,
+        "noncovered": false,
+        "line_no": 34,
+        "detail": "APPLIER MED 10MM ER320 ENDO SHEARS 176607; SCISSOR\t1\t305.0"
+      }
+    ],
+    "total": null,
+    "total_lines": [],
+    "item_sum": 886.86,
+    "line_count": 37
+  },
+  "result": {
+    "document_type": "Hospital receipt (itemized bill)",
+    "target_item": "CLIP APPLIER MED ER320/ER420; CLIP; amounts=379.00",
+    "reasoning": "The patient reports an 81% reduction in daily steps and increased nighttime awakenings, indicating significant postoperative pain and limited mobility after spinal surgery. The high‑cost item \"CLIP APPLIER MED ER320/ER420; CLIP\" appears to be a sterile disposable used during a procedure. Given the patient’s recent surgery and low activity level, the necessity of such a clip applicator for a brief period is questionable and may represent a bundled or non‑covered charge.",
+    "questions": [
+      "Could you please clarify the medical necessity of the 'CLIP APPLIER MED ER320/ER420; CLIP' and whether it is covered under my insurance plan?",
+      "Is this charge itemized separately for a single use, and can a detailed justification be provided?",
+      "Are there any less costly alternatives that could achieve the same clinical outcome?"
+    ],
+    "inquiry_letter": "Dear Billing Department,\n\nI hope you are well. I am writing to request clarification regarding the charge for \"CLIP APPLIER MED ER320/ER420; CLIP\" (amount $379.00) on my recent receipt. Given my recent spinal surgery and the significant reduction in my activity level, I would appreciate an explanation of the medical necessity for this item and whether it is covered by my health plan. Additionally, could you provide a detailed breakdown of how the cost was calculated?\n\nThank you for your assistance.\n\nSincerely,\n[Patient Name]",
+    "inquiry_letter_local": "",
+    "ocr_uncertainties": "The OCR text contains several ambiguous entries such as \"HYDROBR 1.5 MG PATCH\", \"HYDROmorphone HCI PF 1 mg/ml 1 ml A\", \"258 PHARMACY IV SOLUTIONS\" and \"3L fluids?\" which may affect the exact description of those items.",
+    "medication_advisory": {
+      "detected_items": [
+        "HYDROMORPHONE 1MG/ML AMP",
+        "LIDOCAINE/EPINEPHRINE 20ML VL",
+        "BUPIVACAINE HCL 30ML AMP",
+        "PROPOFOL 10 MG/ML 20 ML VIAL",
+        "GLYCOPYRROLATE 0.2MG/ML 2ML VL",
+        "ROCURONIUM BR 10MG/ML 5ML VL",
+        "PROMETHAZINE 25MG/ML AMP"
+      ],
+      "caution": "These medications may cause drowsiness, dizziness, or slowed breathing. Avoid driving, operating machinery, or making important decisions until you know how they affect you.",
+      "recommendation": "Take oral analgesics with food to reduce stomach upset, stay well‑hydrated, and contact your treating physician or pharmacist if you experience persistent side effects or any new symptoms."
+    },
+    "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+    "live_latency_ms": 8289,
+    "is_live": true,
+    "status": "success"
+  }
+}
