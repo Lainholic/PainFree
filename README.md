@@ -7,6 +7,16 @@ PainFree connects two sides of post-operative and chronic pain care: the patient
 
 ---
 
+## Demo Video
+
+[![PainFree Demo Walkthrough](https://img.youtube.com/vi/QE34rI7h5Sg/0.jpg)](https://youtu.be/QE34rI7h5Sg)
+
+- **YouTube Walkthrough**: [https://youtu.be/QE34rI7h5Sg](https://youtu.be/QE34rI7h5Sg)
+- **Duration**: 48 seconds (1280x800 HD)
+- **Features Highlighted**: Subjective VAS & body map pins, wearable activity drop, authentic US itemized bill scanning via Nemotron-3.5-Super-VL, ~8.2s Nemotron 30B MoE clinical reasoning, in-hospital procedural medication separation, and 1-page doctor summary.
+
+---
+
 ## What PainFree Does
 
 1. **Subjective Pain Archive**: Records VAS (0 to 10) pain intensity and maps localized pain points on front and back SVG anatomical body maps.
