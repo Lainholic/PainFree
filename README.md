@@ -3,7 +3,7 @@
 > Patient-side subjective pain telemetry archive and medical bill causal inquiry assistant, built for the Nebius x NVIDIA Global AI Hackathon.
 > Designed and directed by a solo non-developer creator pairing with autonomous AI agents (Google Antigravity & OpenAI Codex).
 
-PainFree connects two sides of post-operative and chronic pain care: the patient's daily pain telemetry (VAS, localized anatomical laser pins, and wearable step drops) and the hospital's dense itemized bill. Directed by a solo non-developer creator and built via AI pair programming, it uses NVIDIA Nemotron vision and reasoning models hosted on the Nebius Token Factory to audit billed lines, separate in-hospital surgical drugs from discharge care, and draft polite inquiry letters for hospital billing offices.
+PainFree connects two sides of post-operative and chronic pain care: the patient's daily pain telemetry (VAS, localized anatomical laser pins, and daily activity metrics) and the hospital's dense itemized bill. Directed by a solo non-developer creator and built via AI pair programming, it uses NVIDIA Nemotron vision and reasoning models hosted on the Nebius Token Factory to audit billed lines, separate in-hospital surgical drugs from discharge care, and draft polite inquiry letters for hospital billing offices.
 
 ---
 
@@ -13,20 +13,20 @@ PainFree connects two sides of post-operative and chronic pain care: the patient
 
 - **YouTube Walkthrough**: [https://youtu.be/QE34rI7h5Sg](https://youtu.be/QE34rI7h5Sg)
 - **Duration**: 48 seconds (1280x800 HD)
-- **Features Highlighted**: Subjective VAS & body map pins, wearable activity drop, authentic US itemized bill scanning via Nemotron-3.5-Super-VL, ~8.2s Nemotron 30B MoE clinical reasoning, in-hospital procedural medication separation, and 1-page doctor summary.
+- **Features Highlighted**: Subjective VAS & body map pins, daily activity drop metrics, authentic US itemized bill scanning via Nemotron-3.5-Super-VL, ~8.2s Nemotron 30B MoE clinical reasoning, in-hospital procedural medication separation, and 1-page doctor summary.
 
 ---
 
 ## What PainFree Does
 
 1. **Subjective Pain Archive**: Records VAS (0 to 10) pain intensity and maps localized pain points on front and back SVG anatomical body maps.
-2. **Wearable Drop Telemetry**: Tracks daily step drops against personal baselines (e.g. -62% reduction during acute flares) and nightly arousal minutes.
+2. **Daily Activity Drop Telemetry**: Tracks daily step drops against personal baselines (e.g. -62% reduction during acute flares) and nightly arousal minutes.
 3. **Medical Bill Causal Audit**:
    - **Stage 1 (Vision OCR)**: Reads photographed hospital bills using `nvidia/Nemotron-3.5-Super-VL` via Nebius.
    - **Stage 2 (Deterministic Parser)**: Extracts items, codes, and billed amounts into structured tables on the server.
    - **Stage 3 (Nemotron 30B MoE Reasoning)**: Runs `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` on Nebius to cross-reference the patient's recorded telemetry with the billed charges, drafting a specific inquiry letter for hospital billing staff.
 4. **Procedural Medication Separation**: Distinguishes in-hospital surgical drugs (Propofol, Rocuronium, Bupivacaine) given under clinical supervision from discharge precautions, preventing misleading home care advice.
-5. **Doctor Summary Report**: Prints a clean 1-page summary chart correlating 7-day pain levels with step count telemetry for clinical visits.
+5. **Doctor Summary Report**: Prints a clean 1-page summary chart correlating 7-day pain levels with daily activity telemetry for clinical visits.
 
 ---
 
@@ -65,7 +65,7 @@ PainFree connects two sides of post-operative and chronic pain care: the patient
 
 ### 1. Clone & Configure
 ```bash
-git clone https://github.com/your-username/PainFree.git
+git clone https://github.com/Lainholic/PainFree.git
 cd PainFree
 ```
 
@@ -86,6 +86,18 @@ pip install pillow
 python app.py
 ```
 Open `http://127.0.0.1:8585` in your browser.
+
+---
+
+## Roadmap: Mobile App & Beyond
+
+PainFree is architected to scale into a full patient companion mobile app (PWA / React Native / Flutter):
+
+1. **Automated Health Sync**: Direct background integration with Apple HealthKit and Android Health Connect to automatically track activity drops and sleep disturbances without requiring manual entry.
+2. **Mobile Camera Document Scanner**: Instant camera scanning at hospital billing windows with on-device perspective correction and glare removal before uploading to Nebius Token Factory for real-time ~8s bill audits.
+3. **Doctor 1-Page Handout & QR Share**: Export clean clinical 1-page reports or generate local offline QR codes for instant sharing during 3-minute outpatient doctor consultations.
+4. **Multi-regional Billing Support**: Expand deterministic parser rules to support UK NHS prescription statements, Korean Health Insurance Review & Assessment (HIRA) itemized non-reimbursable statements, and German GKV billing formats.
+5. **Zero-Knowledge Patient Vault**: End-to-end client-side encryption for all stored pain telemetry and scanned medical bills to guarantee patient privacy and strict HIPAA/GDPR compliance.
 
 ---
 
