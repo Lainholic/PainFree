@@ -492,10 +492,10 @@
       <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900">
         <div>
           <h3 class="text-sm font-bold text-white flex items-center space-x-2">
-            <span>인체 정밀 바디맵</span>
+            <span id="bodyMapTitle">인체 정밀 바디맵</span>
             <span id="modalPinBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-semibold border border-rose-500/30">0개 핀</span>
           </h3>
-          <p class="text-[10px] text-slate-400">부위를 탭하여 3.5px 레이저 핀을 지정하세요</p>
+          <p id="bodyMapSub" class="text-[10px] text-slate-400">부위를 탭하여 3.5px 레이저 핀을 지정하세요</p>
         </div>
 
         <!-- Front / Back Switcher -->
@@ -524,12 +524,12 @@
       <div class="p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between space-x-3">
         <button type="button" onclick="clearPins()" class="py-2.5 px-3 rounded-xl border border-rose-500/40 text-rose-300 hover:bg-rose-950/40 text-xs font-semibold flex items-center space-x-1.5 transition-all">
           <i class="fa-solid fa-broom"></i>
-          <span>🧹 핀 지우기</span>
+          <span id="btnClearPinsText">🧹 핀 지우기</span>
         </button>
 
         <button type="button" onclick="closeBodyMapModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-400 text-slate-950 font-bold text-xs shadow-md hover:brightness-110 flex items-center justify-center space-x-1.5 transition-all">
           <i class="fa-solid fa-check"></i>
-          <span>✓ 마킹 완료</span>
+          <span id="btnFinishPinsText">✓ 마킹 완료</span>
         </button>
       </div>
     </div>
@@ -546,8 +546,8 @@
       <div class="border-b-2 border-slate-900 pb-3 mb-3 flex items-start justify-between">
         <div>
           <span class="text-[9px] font-bold tracking-widest uppercase text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded">PAINFREE CLINICAL SUMMARY</span>
-          <h2 class="text-base font-black text-slate-900 mt-1">주치의 진료 참고용 1페이지 리포트</h2>
-          <p class="text-[10px] text-slate-500">환자 작성 주관적 통증 및 객관적 활동성 아카이브</p>
+          <h2 id="reportModalTitle" class="text-base font-black text-slate-900 mt-1">주치의 진료 참고용 1페이지 리포트</h2>
+          <p id="reportModalSub" class="text-[10px] text-slate-500">환자 작성 주관적 통증 및 객관적 활동성 아카이브</p>
         </div>
         <div class="text-right text-[10px] text-slate-600 font-mono">
           <p id="reportPrintDate">2026.10.26</p>
@@ -558,7 +558,7 @@
       <div class="bg-cyan-50/80 p-2.5 rounded-lg border border-cyan-200 mb-2.5 flex items-center justify-between text-left">
         <div class="flex items-center space-x-1.5">
           <i class="fa-solid fa-stethoscope text-cyan-700 text-xs"></i>
-          <span class="text-[11px] font-bold text-slate-800">환자 등록 상기 병:</span>
+          <span id="reportCondLabel" class="text-[11px] font-bold text-slate-800">환자 등록 상기 병:</span>
         </div>
         <span class="text-xs font-bold text-cyan-950 bg-white px-2 py-0.5 rounded border border-cyan-300 shadow-sm" id="reportConditionText">요추 디스크 (추간판탈출)</span>
       </div>
@@ -566,7 +566,7 @@
       <!-- Patient Stated Chief Complaints -->
       <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 mb-2.5">
         <div class="flex justify-between items-center mb-1">
-          <span class="text-[11px] font-bold text-slate-800">주 호소 부위 및 통증 강도</span>
+          <span id="reportComplaintLabel" class="text-[11px] font-bold text-slate-800">주 호소 부위 및 통증 강도</span>
           <span class="text-xs font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">VAS <span id="reportVasNum">6</span> / 10</span>
         </div>
         <p class="text-xs text-slate-700 font-medium" id="reportRegionsText">-</p>
@@ -575,8 +575,8 @@
       <!-- 7-Day Trend Chart: VAS vs. Steps -->
       <div class="mb-2.5">
         <div class="flex items-center justify-between mb-1">
-          <span class="text-[11px] font-bold text-slate-800">최근 7일 통증(VAS) & 보행량 상관관계</span>
-          <span class="text-[9px] text-slate-500 font-medium">저장된 기록 기준</span>
+          <span id="reportTrendTitle" class="text-[11px] font-bold text-slate-800">최근 7일 통증(VAS) & 보행량 상관관계</span>
+          <span id="reportTrendSub" class="text-[9px] text-slate-500 font-medium">저장된 기록 기준</span>
         </div>
         <div class="h-32 w-full bg-slate-50 rounded-lg p-1.5 border border-slate-200">
           <canvas id="doctorTrendChart"></canvas>
@@ -586,11 +586,11 @@
       <!-- Objective Biometrics Summary -->
       <div class="grid grid-cols-2 gap-2 mb-2.5 text-left">
         <div class="p-2 rounded bg-slate-50 border border-slate-200">
-          <p class="text-[10px] text-slate-500">활동성 급감 지표</p>
+          <p id="reportStepsLabel" class="text-[10px] text-slate-500">활동성 급감 지표</p>
           <p class="text-xs font-bold text-slate-800" id="reportStepsVal">미입력</p>
         </div>
         <div class="p-2 rounded bg-slate-50 border border-slate-200">
-          <p class="text-[10px] text-slate-500">수면 장애 지표</p>
+          <p id="reportSleepLabel" class="text-[10px] text-slate-500">수면 장애 지표</p>
           <p class="text-xs font-bold text-slate-800" id="reportSleepVal">미입력</p>
         </div>
       </div>
@@ -598,8 +598,8 @@
       <!-- Patient Clinical Diary Notes -->
       <div class="mb-3 text-left">
         <div class="flex items-center justify-between mb-1">
-          <p class="text-[11px] font-bold text-slate-800">환자 자가 작성 통증 & 활동성 메모</p>
-          <span class="text-[9px] text-cyan-700 font-semibold">실시간 동적 요약</span>
+          <p id="reportNotesTitle" class="text-[11px] font-bold text-slate-800">환자 자가 작성 통증 & 활동성 메모</p>
+          <span id="reportNotesSub" class="text-[9px] text-cyan-700 font-semibold">실시간 동적 요약</span>
         </div>
         <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-700 space-y-1.5" id="reportClinicalNotes">
           <!-- 동적 주입 -->
@@ -608,17 +608,17 @@
 
       <!-- Disclaimer Note -->
       <p class="text-[9px] text-slate-500 leading-tight border-t border-slate-200 pt-2 mb-3">
-        * 본 문서는 의학 진단서가 아니며, 진료 시 환자의 설명 보조 및 객관적 신체 활동 저하 추이를 전달하기 위한 기록 요약서입니다.
+        <span id="reportDisclaimerText">* 본 문서는 의학 진단서가 아니며, 진료 시 환자의 설명 보조 및 객관적 신체 활동 저하 추이를 전달하기 위한 기록 요약서입니다.</span>
       </p>
 
       <!-- Action Buttons -->
       <div class="flex space-x-2 no-print">
         <button type="button" onclick="window.print()" class="flex-1 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 flex items-center justify-center space-x-1.5 shadow">
           <i class="fa-solid fa-print"></i>
-          <span>인쇄 / PDF 저장</span>
+          <span id="reportPrintBtnText">인쇄 / PDF 저장</span>
         </button>
         <button type="button" onclick="closeDoctorReportModal()" class="py-2 px-4 bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold hover:bg-slate-300">
-          닫기
+          <span id="reportCloseBtnText">닫기</span>
         </button>
       </div>
 
@@ -639,29 +639,29 @@
       </div>
       <div class="space-y-2.5 text-xs">
         <div>
-          <span class="text-slate-400">통증 부위 및 VAS:</span>
+          <span id="detailRegionsLabel" class="text-slate-400">통증 부위 및 VAS:</span>
           <p class="font-bold text-white text-sm" id="detailRegions">-</p>
         </div>
         <div>
-          <span class="text-slate-400">정밀 핀 마킹:</span>
+          <span id="detailPinsLabel" class="text-slate-400">정밀 핀 마킹:</span>
           <p class="text-slate-200" id="detailPins">앞면 0개 / 뒷면 2개</p>
         </div>
         <div>
-          <span class="text-slate-400">갤럭시 워치 바이오데이터:</span>
+          <span id="detailWatchLabel" class="text-slate-400">스마트 워치 활동 데이터:</span>
           <p class="text-slate-200" id="detailWatch">-</p>
         </div>
         <div>
-          <span class="text-slate-400">영수증 감사 내역:</span>
+          <span id="detailAuditLabel" class="text-slate-400">영수증 감사 내역:</span>
           <p class="text-emerald-400 font-semibold" id="detailAudit">-</p>
         </div>
       </div>
       <div class="mt-4 flex items-center space-x-2">
         <button type="button" onclick="deleteJournal(currentDetailId)" class="py-2 px-3 bg-rose-950/70 hover:bg-rose-900 border border-rose-800/80 rounded-xl text-xs font-semibold text-rose-300 flex items-center space-x-1.5 transition-all">
           <i class="fa-regular fa-trash-can"></i>
-          <span>기록 삭제</span>
+          <span id="detailDeleteBtnText">기록 삭제</span>
         </button>
         <button type="button" onclick="closeDetailModal()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300 transition-all">
-          닫기
+          <span id="detailCloseBtnText">닫기</span>
         </button>
       </div>
     </div>
@@ -912,7 +912,7 @@
 
     function updateModalPinBadge() {
       const total = frontPins.length + backPins.length;
-      document.getElementById('modalPinBadge').textContent = `${total}개 핀`;
+      document.getElementById('modalPinBadge').textContent = `${total}${uiLang === 'EN' ? ' Pins' : '개 핀'}`;
     }
 
     // 4. Receipt pipeline: photo -> NVIDIA VL OCR -> deterministic parser -> Nemotron 3 Ultra 550B
@@ -1113,7 +1113,32 @@
         consentBullet3: '동의하지 않으셔도 로컬 통증 일지와 영수증 표는 계속 사용하실 수 있습니다.',
         consentCheckLabel: '[필수] 외부 AI 분석 및 질의서 생성에 동의합니다.',
         consentDeclineBtn: '동의 안 함',
-        consentConfirmBtnText: '동의하고 분석 진행'
+        consentConfirmBtnText: '동의하고 분석 진행',
+        bodyMapTitle: '인체 정밀 바디맵',
+        bodyMapSub: '부위를 탭하여 3.5px 레이저 핀을 지정하세요',
+        tabFrontBtn: '앞면 (Front)',
+        tabBackBtn: '뒷면 (Back)',
+        btnClearPinsText: '🧹 핀 지우기',
+        btnFinishPinsText: '✓ 마킹 완료',
+        reportModalTitle: '주치의 진료 참고용 1페이지 리포트',
+        reportModalSub: '환자 작성 주관적 통증 및 객관적 활동성 아카이브',
+        reportCondLabel: '환자 등록 상기 병:',
+        reportComplaintLabel: '주 호소 부위 및 통증 강도',
+        reportTrendTitle: '최근 7일 통증(VAS) & 보행량 상관관계',
+        reportTrendSub: '저장된 기록 기준',
+        reportStepsLabel: '활동성 급감 지표',
+        reportSleepLabel: '수면 장애 지표',
+        reportNotesTitle: '환자 자가 작성 통증 & 활동성 메모',
+        reportNotesSub: '실시간 동적 요약',
+        reportDisclaimerText: '* 본 문서는 의학 진단서가 아니며, 진료 시 환자의 설명 보조 및 객관적 신체 활동 저하 추이를 전달하기 위한 기록 요약서입니다.',
+        reportPrintBtnText: '인쇄 / PDF 저장',
+        reportCloseBtnText: '닫기',
+        detailRegionsLabel: '통증 부위 및 VAS:',
+        detailPinsLabel: '정밀 핀 마킹:',
+        detailWatchLabel: '스마트 워치 활동 데이터:',
+        detailAuditLabel: '영수증 감사 내역:',
+        detailDeleteBtnText: '기록 삭제',
+        detailCloseBtnText: '닫기',
       },
       EN: {
         headerSubtitle: 'Patient-Centric Subjective Pain Archive',
@@ -1186,7 +1211,32 @@
         consentBullet3: 'Declining consent still allows full access to local pain journals and bill tables.',
         consentCheckLabel: '[Required] I agree to external AI processing to draft a billing inquiry.',
         consentDeclineBtn: 'Decline',
-        consentConfirmBtnText: 'Agree & Proceed'
+        consentConfirmBtnText: 'Agree & Proceed',
+        bodyMapTitle: 'Precision Body Map',
+        bodyMapSub: 'Tap regions to place 3.5px precision laser pins',
+        tabFrontBtn: 'Front View',
+        tabBackBtn: 'Back View',
+        btnClearPinsText: '🧹 Clear Pins',
+        btnFinishPinsText: '✓ Done Marking',
+        reportModalTitle: '1-Page Clinical Summary for Doctor',
+        reportModalSub: 'Patient-Reported Subjective Pain & Objective Biometrics Archive',
+        reportCondLabel: 'Registered Condition:',
+        reportComplaintLabel: 'Chief Complaints & Pain Severity',
+        reportTrendTitle: '7-Day Correlation: Pain (VAS) vs. Steps',
+        reportTrendSub: 'Based on saved journal entries',
+        reportStepsLabel: 'Activity Drop Indicator',
+        reportSleepLabel: 'Sleep Disturbance Indicator',
+        reportNotesTitle: 'Patient Clinical Telemetry Notes',
+        reportNotesSub: 'Live Dynamic Summary',
+        reportDisclaimerText: '* This document is not a medical diagnosis; it is an objective summary of physical activity and pain telemetry to assist doctor-patient consultation.',
+        reportPrintBtnText: 'Print / Save as PDF',
+        reportCloseBtnText: 'Close',
+        detailRegionsLabel: 'Pain Regions & VAS:',
+        detailPinsLabel: 'Precision Pin Marking:',
+        detailWatchLabel: 'Smartwatch Telemetry:',
+        detailAuditLabel: 'Receipt Audit Entry:',
+        detailDeleteBtnText: 'Delete Entry',
+        detailCloseBtnText: 'Close',
       }
     };
 
@@ -1257,6 +1307,35 @@
       setTxt('consentCheckLabel', t.consentCheckLabel);
       setTxt('consentDeclineBtn', t.consentDeclineBtn);
       setTxt('consentConfirmBtnText', t.consentConfirmBtnText);
+
+      setTxt('bodyMapTitle', t.bodyMapTitle);
+      setTxt('bodyMapSub', t.bodyMapSub);
+      setTxt('tabFrontBtn', t.tabFrontBtn);
+      setTxt('tabBackBtn', t.tabBackBtn);
+      setTxt('btnClearPinsText', t.btnClearPinsText);
+      setTxt('btnFinishPinsText', t.btnFinishPinsText);
+
+      setTxt('reportModalTitle', t.reportModalTitle);
+      setTxt('reportModalSub', t.reportModalSub);
+      setTxt('reportCondLabel', t.reportCondLabel);
+      setTxt('reportComplaintLabel', t.reportComplaintLabel);
+      setTxt('reportTrendTitle', t.reportTrendTitle);
+      setTxt('reportTrendSub', t.reportTrendSub);
+      setTxt('reportStepsLabel', t.reportStepsLabel);
+      setTxt('reportSleepLabel', t.reportSleepLabel);
+      setTxt('reportNotesTitle', t.reportNotesTitle);
+      setTxt('reportNotesSub', t.reportNotesSub);
+      setTxt('reportDisclaimerText', t.reportDisclaimerText);
+      setTxt('reportPrintBtnText', t.reportPrintBtnText);
+      setTxt('reportCloseBtnText', t.reportCloseBtnText);
+
+      setTxt('detailRegionsLabel', t.detailRegionsLabel);
+      setTxt('detailPinsLabel', t.detailPinsLabel);
+      setTxt('detailWatchLabel', t.detailWatchLabel);
+      setTxt('detailAuditLabel', t.detailAuditLabel);
+      setTxt('detailDeleteBtnText', t.detailDeleteBtnText);
+      setTxt('detailCloseBtnText', t.detailCloseBtnText);
+
 
       // 8 Quick chips labels
       const chips = document.querySelectorAll('.quick-chip');
@@ -1455,23 +1534,59 @@
       const today = new Date();
       document.getElementById('reportPrintDate').textContent =
         `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
-      document.getElementById('reportConditionText').textContent = selectedCondition || '기저질환 미등록';
+      const isEn = uiLang === 'EN';
+
+      // Condition translation
+      let displayCond = selectedCondition || (isEn ? 'Not registered' : '기저질환 미등록');
+      if (isEn && selectedCondition) {
+        const condMap = {
+          '요추 디스크(추간판 탈출증)': 'Lumbar Disc Herniation',
+          '요추 디스크 (추간판탈출)': 'Lumbar Disc Herniation',
+          '척추관 협착증': 'Spinal Stenosis',
+          '만성 관절염 / 류마티스': 'Chronic Arthritis / Rheumatoid',
+          '급성 염좌 / 근막통증': 'Acute Sprain / Myofascial Pain'
+        };
+        displayCond = condMap[selectedCondition] || selectedCondition;
+      }
+      document.getElementById('reportConditionText').textContent = displayCond;
       document.getElementById('reportVasNum').textContent = currentVas;
-      const regions = Array.from(selectedChips).join(', ') || '부위 미선택';
+
+      // Regions translation
+      const chipTrans = isEn ? I18N.EN.quickChips : {};
+      const regList = Array.from(selectedChips).map(c => (isEn && chipTrans[c]) ? chipTrans[c] : c);
+      const regions = regList.join(', ') || (isEn ? 'No regions selected' : '부위 미선택');
       const totalPins = frontPins.length + backPins.length;
-      document.getElementById('reportRegionsText').textContent = `${regions} (바디맵 핀 ${totalPins}개)`;
+      document.getElementById('reportRegionsText').textContent = `${regions} (${isEn ? `${totalPins} pins` : `바디맵 핀 ${totalPins}개`})`;
 
       const w = getWearable();
-      document.getElementById('reportStepsVal').textContent = w.stepsToday != null
-        ? `오늘 ${w.stepsToday.toLocaleString()}보${w.drop != null ? ` (평소 대비 ${w.drop > 0 ? '+' : ''}${w.drop}%)` : ''}` : '미입력';
-      document.getElementById('reportSleepVal').textContent = w.arousal != null ? `밤에 깬 시간 ${w.arousal}분` : '미입력';
+      if (isEn) {
+        document.getElementById('reportStepsVal').textContent = w.stepsToday != null
+          ? `Today ${w.stepsToday.toLocaleString()} steps${w.drop != null ? ` (${w.drop > 0 ? '+' : ''}${w.drop}% vs baseline)` : ''}` : 'Not entered';
+        document.getElementById('reportSleepVal').textContent = w.arousal != null ? `Awake time ${w.arousal} min` : 'Not entered';
+      } else {
+        document.getElementById('reportStepsVal').textContent = w.stepsToday != null
+          ? `오늘 ${w.stepsToday.toLocaleString()}보${w.drop != null ? ` (평소 대비 ${w.drop > 0 ? '+' : ''}${w.drop}%)` : ''}` : '미입력';
+        document.getElementById('reportSleepVal').textContent = w.arousal != null ? `밤에 깬 시간 ${w.arousal}분` : '미입력';
+      }
 
-      const notes = [`<p>• <strong>기저질환:</strong> ${escapeHtml(selectedCondition || '미등록')}</p>`,
-        `<p>• <strong>오늘 통증:</strong> ${escapeHtml(regions)}, VAS ${currentVas}/10, 바디맵 핀 ${totalPins}개</p>`];
-      if (w.stepsToday != null) notes.push(`<p>• <strong>활동량:</strong> 걸음 ${w.stepsToday.toLocaleString()}보${w.drop != null ? `, 평소 ${w.stepsBase.toLocaleString()}보 대비 ${w.drop > 0 ? '+' : ''}${w.drop}%` : ''}</p>`);
-      if (w.arousal != null) notes.push(`<p>• <strong>수면:</strong> 밤에 깬 시간 ${w.arousal}분 (환자 입력)</p>`);
+      const notes = [
+        `<p>• <strong>${isEn ? 'Pre-existing Condition' : '기저질환'}:</strong> ${escapeHtml(displayCond)}</p>`,
+        `<p>• <strong>${isEn ? "Today's Pain" : '오늘 통증'}:</strong> ${escapeHtml(regions)}, VAS ${currentVas}/10, ${isEn ? `${totalPins} pins` : `바디맵 핀 ${totalPins}개`}</p>`
+      ];
+      if (w.stepsToday != null) {
+        notes.push(isEn
+          ? `<p>• <strong>Activity:</strong> ${w.stepsToday.toLocaleString()} steps${w.drop != null ? `, ${w.drop > 0 ? '+' : ''}${w.drop}% vs ${w.stepsBase.toLocaleString()} baseline` : ''}</p>`
+          : `<p>• <strong>활동량:</strong> 걸음 ${w.stepsToday.toLocaleString()}보${w.drop != null ? `, 평소 ${w.stepsBase.toLocaleString()}보 대비 ${w.drop > 0 ? '+' : ''}${w.drop}%` : ''}</p>`);
+      }
+      if (w.arousal != null) {
+        notes.push(isEn
+          ? `<p>• <strong>Sleep:</strong> Night awake time ${w.arousal} min (Patient reported)</p>`
+          : `<p>• <strong>수면:</strong> 밤에 깬 시간 ${w.arousal}분 (환자 입력)</p>`);
+      }
       const real = journalData.filter(j => !j.sample);
-      notes.push(`<p>• <strong>기록 일지:</strong> 저장된 기록 ${real.length}건${journalData.length > real.length ? ` (예시 ${journalData.length - real.length}건 제외)` : ''}</p>`);
+      notes.push(isEn
+        ? `<p>• <strong>Journal:</strong> ${real.length} saved entries${journalData.length > real.length ? ` (excluding ${journalData.length - real.length} samples)` : ''}</p>`
+        : `<p>• <strong>기록 일지:</strong> 저장된 기록 ${real.length}건${journalData.length > real.length ? ` (예시 ${journalData.length - real.length}건 제외)` : ''}</p>`);
       document.getElementById('reportClinicalNotes').innerHTML = notes.join('');
 
       setTimeout(renderDoctorChart, 50);
@@ -1489,18 +1604,24 @@
       const todayStr = `${t.getFullYear()}.${String(t.getMonth() + 1).padStart(2, '0')}.${String(t.getDate()).padStart(2, '0')}`;
       const entries = journalData.filter(e => e.date !== todayStr).slice(0, 6).reverse();  // today = current input
       const w = getWearable();
-      const labels = entries.map(e => (e.sample ? '예시 ' : '') + e.date.slice(5)).concat(['오늘']);
+      const isEn = uiLang === 'EN';
+      const samplePrefix = isEn ? 'Sample ' : '예시 ';
+      const todayLabel = isEn ? 'Today' : '오늘';
+      const labels = entries.map(e => (e.sample ? samplePrefix : '') + e.date.slice(5)).concat([todayLabel]);
       const vasSeries = entries.map(e => e.vas).concat([currentVas]);
       const stepsSeries = entries.map(e => (typeof e.stepsToday === 'number' ? e.stepsToday : null)).concat([w.stepsToday]);
       const maxSteps = Math.max(1000, ...stepsSeries.filter(v => v != null), w.stepsBase || 0);
+
+      const labelVas = isEn ? 'Pain Severity (VAS 0-10)' : '통증 강도 (VAS 0-10)';
+      const labelSteps = isEn ? 'Step Count' : '걸음 수';
 
       trendChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
           labels,
           datasets: [
-            { label: '통증 강도 (VAS 0-10)', data: vasSeries, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.15)', tension: 0.3, yAxisID: 'yVas', borderWidth: 2, pointRadius: 3 },
-            { label: '걸음 수', data: stepsSeries, borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.1)', tension: 0.3, yAxisID: 'ySteps', borderWidth: 2, pointRadius: 3, spanGaps: true }
+            { label: labelVas, data: vasSeries, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.15)', tension: 0.3, yAxisID: 'yVas', borderWidth: 2, pointRadius: 3 },
+            { label: labelSteps, data: stepsSeries, borderColor: '#0284c7', backgroundColor: 'rgba(2, 132, 199, 0.1)', tension: 0.3, yAxisID: 'ySteps', borderWidth: 2, pointRadius: 3, spanGaps: true }
           ]
         },
         options: {
@@ -1689,7 +1810,7 @@
       const item = journalData.find(x => x.id === id);
       if (!item) return;
 
-      document.getElementById('detailDate').textContent = `${item.date} 상세 기록`;
+      document.getElementById('detailDate').textContent = `${item.date} ${uiLang === 'EN' ? 'Detail Record' : '상세 기록'}`;
       document.getElementById('detailRegions').textContent = `${item.regions} (VAS ${item.vas}/10)`;
       document.getElementById('detailPins').textContent = item.pins;
       document.getElementById('detailWatch').textContent = item.watch;
