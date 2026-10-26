@@ -86,7 +86,12 @@ class HackathonHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def _read_json(self, limit):
-        length = int(self.headers.get("Content-Length", 0))
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+        except (ValueError, TypeError):
+            length = 0
+        if length < 0:
+            length = 0
         if length > limit:
             raise OverflowError("payload too large")
         raw = self.rfile.read(length).decode("utf-8") if length else ""
@@ -139,7 +144,7 @@ class HackathonHandler(http.server.SimpleHTTPRequestHandler):
             safe_lines = [str(x)[:300] for x in raw_lines if isinstance(x, (str, int, float))][:200]
             # Server-side deterministic re-parse ensures data integrity and provenance
             server_parsed = rp.parse_receipt(safe_lines)
-            safe_receipt = {"lines": safe_lines, "parsed": server_parsed, "provenance": "server_verified"}
+            safe_receipt = {"lines": safe_lines, "parsed": server_parsed, "provenance": "server_reparsed"}
             result = rp.reason(NEBIUS_BASE_URL, NEBIUS_API_KEY, "EN" if body.get("ui_lang") == "EN" else "KR",
                                patient, wearable, safe_receipt)
             self._send_json(200, result)

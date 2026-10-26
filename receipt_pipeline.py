@@ -361,7 +361,12 @@ def build_reasoning_messages(ui_lang, patient, wearable, receipt):
         "USA: CPT/E&M coding level, No Surprises Act itemized bill; Taiwan: NHI coverage and self-pay 自費). "
         "Only cite items that actually appear in the OCR text or parsed items. "
         "PRIVACY: never copy names, ID numbers, chart numbers, phone numbers or addresses; use placeholders like [환자 이름] / [Patient Name]. "
-        f"LANGUAGE: reasoning, questions, and inquiry_letter MUST be written in {out_lang}. (target_item must preserve the exact billed line from the receipt). "
+        "MEDICATION/INJECTION ADVISORY (Tone & Manner: Strictly Educational Caution & Supportive Patient Advisory): "
+        "Examine the receipt for any billed medications, injections (e.g. nerve blocks, steroid shots, joint injections, NSAIDs, analgesics, muscle relaxants), or clinical therapies. "
+        "NEVER issue clinical diagnoses or orders to stop medication. Use strictly cautious, supportive, educational guidance: "
+        "- caution: Daily activity precautions (e.g., potential drowsiness, dizziness, avoiding driving/machinery, resting after local injection). "
+        "- recommendation: Supportive patient care advice (e.g., taking oral analgesics with food to avoid gastric upset, staying hydrated, consulting treating doctor or pharmacist if symptoms persist). "
+        f"LANGUAGE: reasoning, questions, inquiry_letter, and medication_advisory MUST be written in {out_lang}. (target_item must preserve the exact billed line from the receipt). "
         f"If the hospital's native language differs from {out_lang}, also provide inquiry_letter_local written in the hospital's language; "
         "otherwise set it to an empty string. Respond with JSON only: "
         '{"document_type": "...", "target_item": "exact billed line copied from receipt", '
@@ -369,7 +374,8 @@ def build_reasoning_messages(ui_lang, patient, wearable, receipt):
         '"questions": ["polite question 1", "..."], '
         '"inquiry_letter": "polite inquiry draft to the hospital billing office", '
         '"inquiry_letter_local": "", '
-        '"ocr_uncertainties": "anything unreadable or ambiguous"}'
+        '"ocr_uncertainties": "anything unreadable or ambiguous", '
+        '"medication_advisory": {"detected_items": ["item1"], "caution": "Daily precautions", "recommendation": "Patient care advice"}}'
     )
     user = (
         "PATIENT RECORD (entered by patient)\n"
@@ -417,6 +423,22 @@ def reason(base_url, api_key, ui_lang, patient, wearable, receipt):
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}, timeout=120)
     raw = data["choices"][0]["message"].get("content") or ""
     result = _extract_json(raw)
+    if not isinstance(result, dict):
+        result = {"reasoning": str(result)}
+    # Schema safety defaults
+    result.setdefault("document_type", "Medical Receipt")
+    result.setdefault("target_item", "")
+    result.setdefault("reasoning", "")
+    result.setdefault("questions", [])
+    result.setdefault("inquiry_letter", "")
+    result.setdefault("inquiry_letter_local", "")
+    result.setdefault("ocr_uncertainties", "")
+    if not isinstance(result.get("medication_advisory"), dict):
+        result["medication_advisory"] = {
+            "detected_items": [],
+            "caution": "시술 및 투약 후 무리한 활동을 피하고 충분한 휴식을 취하시기 바랍니다." if ui_lang == "KR" else "Avoid strenuous activity and rest comfortably following medical procedures.",
+            "recommendation": "특이 증상이나 통증 악화 시 담당 의료진이나 약사와 상담하시기 바랍니다." if ui_lang == "KR" else "Consult your physician or pharmacist if unexpected symptoms persist."
+        }
     result["model"] = REASONING_MODEL
     result["live_latency_ms"] = round((time.time() - t0) * 1000)
     result["is_live"] = True

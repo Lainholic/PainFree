@@ -115,26 +115,55 @@
       scrollbar-width: none;
     }
 
-    /* Printing style for doctor's report */
+    /* Printing & PDF Export Styles */
     @media print {
       body {
-        background: white;
-        color: black;
+        background: white !important;
+        color: black !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       #app-container {
-        max-width: 100%;
-        box-shadow: none;
-        border: none;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding-bottom: 0 !important;
       }
-      .no-print {
+      .no-print, nav, footer, #bottomNavBar {
         display: none !important;
       }
-      #doctorReportModal {
+      /* Prevent sticky header from repeating mid-page */
+      header {
+        position: static !important;
+        background: white !important;
+        color: black !important;
+        border-bottom: 1px solid #cbd5e1 !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+      }
+      header #headerBrandTitle {
+        color: #0f172a !important;
+      }
+      header #langKrBtn, header #langEnBtn, header #currentDateBadge {
+        display: none !important;
+      }
+      /* Prevent section blocks from breaking awkwardly across pages */
+      section, .p-3, .p-4 {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      /* When Doctor Consultation Sheet Modal is open, isolate it for clean 1-page PDF */
+      body:has(#doctorReportModal:not(.hidden)) #app-container > *:not(#doctorReportModal) {
+        display: none !important;
+      }
+      #doctorReportModal:not(.hidden) {
         position: static !important;
         display: block !important;
         background: white !important;
         color: black !important;
         padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
       }
       #doctorReportModalContent {
         max-height: none !important;
@@ -142,6 +171,7 @@
         color: black !important;
         border: none !important;
         box-shadow: none !important;
+        padding: 0 !important;
       }
     }
   </style>
@@ -159,7 +189,7 @@
         </div>
         <div>
           <h1 class="text-base font-bold tracking-tight text-white flex items-center">
-            페인프리 <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/60 font-semibold">PainFree</span>
+            <span id="headerBrandTitle">페인프리</span> <span id="headerBrandSubBadge" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/60 font-semibold">PainFree</span>
           </h1>
           <p id="headerSubtitle" class="text-[10px] text-slate-400 leading-none">환자 중심 순수 통증 아카이브</p>
         </div>
@@ -368,6 +398,34 @@
               <pre id="auditLetter" class="whitespace-pre-wrap mt-1 p-2 rounded bg-slate-950 border border-slate-800 font-sans"></pre>
             </details>
 
+            <!-- Medication & Procedure Advisory (Caution & Recommendations) -->
+            <div id="medAdvisoryCard" class="hidden mt-2.5 p-2.5 rounded-lg bg-slate-950/90 border border-amber-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-amber-400 flex items-center space-x-1.5">
+                  <i class="fa-solid fa-pills text-amber-400"></i>
+                  <span id="medAdvisoryTitle">복약·시술 일상 주의 및 권고사항</span>
+                </span>
+                <span id="medAdvisoryTag" class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-semibold border border-amber-500/20">환자 일상 안내</span>
+              </div>
+              <div id="medDetectedItems" class="flex flex-wrap gap-1 text-[9px]"></div>
+              <div class="p-2 rounded bg-amber-950/20 border border-amber-500/20 text-[11px] text-amber-200/90 leading-relaxed flex items-start space-x-1.5">
+                <i class="fa-solid fa-triangle-exclamation text-amber-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <div>
+                  <strong id="medCautionLabel" class="text-amber-300 font-semibold">일상 주의: </strong>
+                  <span id="medCautionText">-</span>
+                </div>
+              </div>
+              <div class="p-2 rounded bg-teal-950/20 border border-teal-500/20 text-[11px] text-teal-200/90 leading-relaxed flex items-start space-x-1.5">
+                <i class="fa-solid fa-heart-pulse text-teal-400 text-xs mt-0.5 flex-shrink-0"></i>
+                <div>
+                  <strong id="medRecomLabel" class="text-teal-300 font-semibold">환자 권고: </strong>
+                  <span id="medRecomText">-</span>
+                </div>
+              </div>
+              <p id="medDisclaimerText" class="text-[9px] text-slate-500 leading-tight">* 본 내용은 공인 복약설명서 기반의 일상 주의 및 돌봄 권고사항이며, 의사의 진료·처방 지시를 대신할 수 없습니다.</p>
+            </div>
+
+
             <p id="auditDisclaimerText" class="text-[9px] text-slate-500 mt-1.5 leading-tight">* 본 문서는 의료적 진단이나 법률적 판정이 아니며, 환자가 병원 원무과에 확인을 요청할 때 참고하는 질의서 초안입니다.</p>
 
             <button type="button" onclick="copyDisputeForm()" class="mt-2.5 w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 active:bg-slate-700 transition-all">
@@ -467,7 +525,7 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="sticky bottom-0 z-20 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-6 py-2.5 flex justify-around items-center">
+    <nav id="bottomNavBar" class="no-print sticky bottom-0 z-20 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-6 py-2.5 flex justify-around items-center">
       <button type="button" onclick="scrollToTop()" class="flex flex-col items-center text-cyan-400">
         <i class="fa-solid fa-house-chimney-medical text-base"></i>
         <span id="tabHomeText" class="text-[10px] font-medium mt-1">홈/기록</span>
@@ -754,7 +812,7 @@
       btn.classList.add('border-cyan-500', 'bg-cyan-950/60', 'text-cyan-300', 'active-condition');
       const activeSpan = btn.querySelector('span');
       if (activeSpan) activeSpan.textContent = '● ' + activeSpan.textContent.replace(/^[●○]\s*/, '');
-      showToast(`기저질환 선택: ${conditionName}`);
+      showToast(uiLang === 'EN' ? `Condition selected: ${conditionName}` : `기저질환 선택: ${conditionName}`);
       updatePipelineInputs();
     }
 
@@ -802,21 +860,21 @@
       const descText = document.getElementById('vasSeverityDesc');
       valText.textContent = currentVas;
 
-      if (currentVas === 0) {
+      const sevMap = (I18N[uiLang] && I18N[uiLang].vasSeverity) || {};
+      const fallbackDesc = currentVas === 0 ? (uiLang === 'EN' ? 'No pain (Comfortable)' : '통증 없음 (쾌적함)') :
+                           currentVas <= 3 ? (uiLang === 'EN' ? 'Mild pain (Manageable)' : '경미한 통증 (생활 가능)') :
+                           currentVas <= 6 ? (uiLang === 'EN' ? 'Moderate pain (Distracting)' : '중등도 통증 (일상 지장)') :
+                                             (uiLang === 'EN' ? 'Severe pain (Disabling)' : '극심한 통증 (휴식 필수)');
+      descText.textContent = sevMap[currentVas] || fallbackDesc;
+
+      if (currentVas === 0 || currentVas <= 3) {
         valText.className = 'text-2xl font-black text-emerald-400';
-        descText.textContent = '통증 없음 (쾌적함)';
-        descText.className = 'text-emerald-400 font-semibold';
-      } else if (currentVas <= 3) {
-        valText.className = 'text-2xl font-black text-emerald-400';
-        descText.textContent = '경미한 통증 (생활 가능)';
         descText.className = 'text-emerald-400 font-semibold';
       } else if (currentVas <= 6) {
         valText.className = 'text-2xl font-black text-amber-400';
-        descText.textContent = '중등도 통증 (일상 지장)';
         descText.className = 'text-amber-400 font-semibold';
       } else {
         valText.className = 'text-2xl font-black text-rose-500';
-        descText.textContent = '극심한 통증 (휴식 필수)';
         descText.className = 'text-rose-500 font-semibold';
       }
     }
@@ -907,7 +965,7 @@
       frontPins = [];
       backPins = [];
       updateModalPinBadge();
-      showToast('모든 정밀 레이저 핀이 초기화되었습니다.');
+      showToast(uiLang === 'EN' ? 'All precision pins cleared.' : '모든 정밀 레이저 핀이 초기화되었습니다.');
     }
 
     function updateModalPinBadge() {
@@ -1031,18 +1089,25 @@
 
         currentReceipt = { lines, parsed: p, source: name };
         btn.disabled = false;
-        document.getElementById('auditHint').textContent = '인식 완료. 감사를 실행하면 Nemotron 엔진이 내 기록과 대조합니다.';
+        document.getElementById('auditHint').textContent = uiLang === 'EN' ? 'Bill scanned. Click audit button to run Nemotron reasoning.' : '인식 완료. 감사를 실행하면 Nemotron 엔진이 내 기록과 대조합니다.';
         resetAuditCard();
         updatePipelineInputs();
       } catch (e) {
-        setStage('stageOcr', 'err', '① 글자 인식 실패: ' + e.message);
-        showToast('⚠️ 영수증 인식 실패');
+        setStage('stageOcr', 'err', (uiLang === 'EN' ? '① OCR Failed: ' : '① 글자 인식 실패: ') + e.message);
+        showToast(uiLang === 'EN' ? '⚠️ Bill scanning failed' : '⚠️ 영수증 인식 실패');
       }
     }
 
     // Complete i18n Translation Dictionary
     const I18N = {
       KR: {
+        headerBrandTitle: '페인프리',
+        headerBrandSubBadge: 'PainFree',
+        docTitle: '페인프리 (PainFree) - 순수 통증 기록 & 정밀 감사',
+        journalSavedToast: '오늘의 기록이 일지에 저장되었습니다.',
+        journalNoAudit: '영수증 감사 없음',
+        journalNoWatch: '활동량 미입력',
+        journalNoRegion: '부위 미선택',
         headerSubtitle: '환자 중심 순수 통증 아카이브',
         bannerNotice: '<strong class="text-white">기록 중심 안내:</strong> 페인프리는 임의의 질병 진단이나 훈계를 하지 않습니다. 환자 본인이 체감한 신체 감각과 객관적 바이오데이터를 온전히 보존합니다.',
         sec1Title: '통증 부위 및 주관 강도 (VAS)',
@@ -1139,8 +1204,20 @@
         detailAuditLabel: '영수증 감사 내역:',
         detailDeleteBtnText: '기록 삭제',
         detailCloseBtnText: '닫기',
+        medAdvisoryTitle: '복약·시술 일상 주의 및 권고사항',
+        medAdvisoryTag: '환자 일상 안내',
+        medCautionLabel: '일상 주의: ',
+        medRecomLabel: '환자 권고: ',
+        medDisclaimerText: '* 본 내용은 공인 복약설명서 기반의 일상 주의 및 돌봄 권고사항이며, 의사의 진료·처방 지시를 대신할 수 없습니다.',
       },
       EN: {
+        headerBrandTitle: 'PainFree',
+        headerBrandSubBadge: 'Patient Archive',
+        docTitle: 'PainFree - Patient Pain Archive & Medical Bill Audit',
+        journalSavedToast: "Today's record saved to journal.",
+        journalNoAudit: 'No receipt audit',
+        journalNoWatch: 'No activity entered',
+        journalNoRegion: 'No region selected',
         headerSubtitle: 'Patient-Centric Subjective Pain Archive',
         bannerNotice: '<strong class="text-white">Notice:</strong> PainFree does not diagnose or lecture. We objectively preserve your subjective pain sensations and biometric data.',
         sec1Title: 'Pain Regions & Subjective VAS',
@@ -1237,12 +1314,19 @@
         detailAuditLabel: 'Receipt Audit Entry:',
         detailDeleteBtnText: 'Delete Entry',
         detailCloseBtnText: 'Close',
+        medAdvisoryTitle: 'Medication & Procedure Precautions & Advisory',
+        medAdvisoryTag: 'Patient Advisory',
+        medCautionLabel: 'Daily Precautions: ',
+        medRecomLabel: 'Patient Guidance: ',
+        medDisclaimerText: '* This guidance provides educational precautions based on official drug labels and cannot replace clinical advice from your physician.',
       }
     };
 
     function applyTranslations(lang) {
       const t = I18N[lang];
       if (!t) return;
+
+      if (t.docTitle) document.title = t.docTitle;
 
       const setTxt = (id, txt) => {
         const el = document.getElementById(id);
@@ -1253,6 +1337,8 @@
         if (el) el.innerHTML = html;
       };
 
+      setTxt('headerBrandTitle', t.headerBrandTitle);
+      setTxt('headerBrandSubBadge', t.headerBrandSubBadge);
       setTxt('headerSubtitle', t.headerSubtitle);
       setHtml('bannerNoticeText', t.bannerNotice);
       setTxt('sec1Title', t.sec1Title);
@@ -1283,6 +1369,11 @@
       setTxt('pipeCol1Label', t.pipeCol1Label);
       setTxt('pipeCol2Label', t.pipeCol2Label);
       setTxt('pipeCol3Label', t.pipeCol3Label);
+      setTxt('medAdvisoryTitle', t.medAdvisoryTitle);
+      setTxt('medAdvisoryTag', t.medAdvisoryTag);
+      setTxt('medCautionLabel', t.medCautionLabel);
+      setTxt('medRecomLabel', t.medRecomLabel);
+      setTxt('medDisclaimerText', t.medDisclaimerText);
       setHtml('pipeExplText', t.pipeExplText);
 
       setTxt('sec3Title', t.sec3Title);
@@ -1355,11 +1446,8 @@
         }
       });
 
-      // Update VAS severity text
-      const sevEl = document.getElementById('vasSeverityDesc');
-      if (sevEl && t.vasSeverity[currentVas]) {
-        sevEl.textContent = t.vasSeverity[currentVas];
-      }
+      // Update VAS severity text and colors
+      updateVAS(currentVas);
 
       // Update Audit default texts if waiting
       if (!currentAudit) {
@@ -1449,7 +1537,7 @@
     }
 
     async function runNemotronAudit() {
-      if (!currentReceipt) { showToast('영수증을 먼저 인식해 주세요.'); return; }
+      if (!currentReceipt) { showToast(uiLang === 'EN' ? 'Please scan a bill first.' : '영수증을 먼저 인식해 주세요.'); return; }
       const loading = document.getElementById('auditLoading');
       const resultCard = document.getElementById('auditResultCard');
       const btn = document.getElementById('startAuditBtn');
@@ -1488,13 +1576,32 @@
         qBox.classList.toggle('hidden', qs.length === 0);
 
         const unc = document.getElementById('auditUncertain');
-        unc.textContent = data.ocr_uncertainties ? `인식 불확실: ${data.ocr_uncertainties}` : '';
+        unc.textContent = data.ocr_uncertainties ? `${uiLang === 'EN' ? 'Uncertain OCR: ' : '인식 불확실: '}${data.ocr_uncertainties}` : '';
         unc.classList.toggle('hidden', !data.ocr_uncertainties);
 
         document.getElementById('auditLetter').textContent = data.inquiry_letter_local
           ? `${data.inquiry_letter || ''}\n\n---- ${uiLang === 'EN' ? 'Hospital-language version' : '병원 현지 언어본'} ----\n${data.inquiry_letter_local}`
           : (data.inquiry_letter || '');
         document.getElementById('auditLetterBox').classList.toggle('hidden', !data.inquiry_letter);
+
+        // Render Medication & Procedure Advisory (Tone: Caution & Advisory)
+        const medCard = document.getElementById('medAdvisoryCard');
+        if (data.medication_advisory && (data.medication_advisory.caution || data.medication_advisory.recommendation)) {
+          const adv = data.medication_advisory;
+          document.getElementById('medCautionText').textContent = adv.caution || '-';
+          document.getElementById('medRecomText').textContent = adv.recommendation || '-';
+          const itemsBox = document.getElementById('medDetectedItems');
+          const dItems = Array.isArray(adv.detected_items) ? adv.detected_items : [];
+          if (dItems.length > 0) {
+            itemsBox.innerHTML = dItems.map(it => `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">💊 ${escapeHtml(it)}</span>`).join('');
+            itemsBox.classList.remove('hidden');
+          } else {
+            itemsBox.classList.add('hidden');
+          }
+          medCard.classList.remove('hidden');
+        } else {
+          medCard.classList.add('hidden');
+        }
 
         const badge = document.getElementById('auditStatusBadge');
         badge.textContent = uiLang === 'EN' ? 'Done' : '생성 완료';
@@ -1506,9 +1613,9 @@
       } catch (err) {
         document.getElementById('auditBillHeader').textContent = '⚠️ 추론 실패';
         document.getElementById('reductionAmount').textContent = '-';
-        document.getElementById('reductionReason').textContent = '서버 또는 Nebius API 호출 중 오류가 발생했습니다: ' + (err.message || '네트워크 오류');
+        document.getElementById('reductionReason').textContent = (uiLang === 'EN' ? 'Error during server or Nebius API call: ' : '서버 또는 Nebius API 호출 중 오류가 발생했습니다: ') + (err.message || (uiLang === 'EN' ? 'Network error' : '네트워크 오류'));
         setStage('stageReason', 'err', `${uiLang === 'EN' ? '③ NVIDIA Nemotron reasoning failed: ' : '③ NVIDIA Nemotron 추론 실패: '}` + (err.message || ''));
-        showToast('⚠️ 감사 실행 중 오류가 발생했습니다.');
+        showToast(uiLang === 'EN' ? '⚠️ Error occurred during audit.' : '⚠️ 감사 실행 중 오류가 발생했습니다.');
       } finally {
         loading.classList.add('hidden');
         resultCard.classList.remove('opacity-50');
@@ -1519,12 +1626,12 @@
     // Copy only the letter the model actually produced.
     function copyDisputeForm() {
       const text = currentAudit && document.getElementById('auditLetter').textContent;
-      if (!text) { showToast('먼저 영수증을 인식하고 감사를 실행해 주세요.'); return; }
+      if (!text) { showToast(uiLang === 'EN' ? 'Please scan bill and run audit first.' : '먼저 영수증을 인식하고 감사를 실행해 주세요.'); return; }
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => showToast('질의서 초안이 클립보드에 복사되었습니다.'))
-          .catch(() => prompt('아래 텍스트를 복사하세요:', text));
+        navigator.clipboard.writeText(text).then(() => showToast(uiLang === 'EN' ? 'Inquiry draft copied to clipboard.' : '질의서 초안이 클립보드에 복사되었습니다.'))
+          .catch(() => prompt(uiLang === 'EN' ? 'Copy the text below:' : '아래 텍스트를 복사하세요:', text));
       } else {
-        prompt('아래 텍스트를 복사하세요:', text);
+        prompt(uiLang === 'EN' ? 'Copy the text below:' : '아래 텍스트를 복사하세요:', text);
       }
     }
 
@@ -1662,24 +1769,33 @@
     function saveTodayRecord() {
       const now = new Date();
       const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+      const isEn = uiLang === 'EN';
       const w = getWearable();
       const watchParts = [];
-      if (w.stepsToday != null) watchParts.push(`걸음 ${w.stepsToday.toLocaleString()}보${w.drop != null ? ` (평소 ${w.stepsBase.toLocaleString()}보 대비 ${w.drop > 0 ? '+' : ''}${w.drop}%)` : ''}`);
-      if (w.arousal != null) watchParts.push(`밤에 깬 시간 ${w.arousal}분`);
+      if (w.stepsToday != null) {
+        if (isEn) {
+          watchParts.push(`Steps ${w.stepsToday.toLocaleString()}${w.drop != null ? ` (${w.drop > 0 ? '+' : ''}${w.drop}% vs baseline)` : ''}`);
+        } else {
+          watchParts.push(`걸음 ${w.stepsToday.toLocaleString()}보${w.drop != null ? ` (평소 ${w.stepsBase.toLocaleString()}보 대비 ${w.drop > 0 ? '+' : ''}${w.drop}%)` : ''}`);
+        }
+      }
+      if (w.arousal != null) {
+        watchParts.push(isEn ? `Night awake ${w.arousal} min` : `밤에 깬 시간 ${w.arousal}분`);
+      }
       journalData.unshift({
         id: Date.now(),
         date: dateStr,
         condition: selectedCondition,
-        regions: Array.from(selectedChips).join(', ') || '부위 미선택',
+        regions: Array.from(selectedChips).join(', ') || (isEn ? 'No region selected' : '부위 미선택'),
         vas: currentVas,
-        pins: `앞면 ${frontPins.length}개 / 뒷면 ${backPins.length}개`,
+        pins: isEn ? `Front ${frontPins.length} / Back ${backPins.length}` : `앞면 ${frontPins.length}개 / 뒷면 ${backPins.length}개`,
         stepsToday: w.stepsToday, stepsBase: w.stepsBase, arousal: w.arousal,
-        watch: watchParts.join(', ') || '활동량 미입력',
-        audit: currentAudit && currentAudit.target_item ? `확인 대상: ${currentAudit.target_item}` : '영수증 감사 없음'
+        watch: watchParts.join(', ') || (isEn ? 'No activity entered' : '활동량 미입력'),
+        audit: currentAudit && currentAudit.target_item ? (isEn ? `Target: ${currentAudit.target_item}` : `확인 대상: ${currentAudit.target_item}`) : (isEn ? 'No receipt audit' : '영수증 감사 없음')
       });
       saveJournalStorage();
       renderJournalList();
-      showToast('오늘의 기록이 일지에 저장되었습니다.');
+      showToast(isEn ? "Today's record saved to journal." : '오늘의 기록이 일지에 저장되었습니다.');
     }
 
     let currentDetailId = null;
@@ -1691,7 +1807,7 @@
       saveJournalStorage();
       loadJournalStorage();
       renderJournalList();
-      showToast('선택한 기록 일지가 삭제되었습니다.');
+      showToast(uiLang === 'EN' ? 'Selected journal entry deleted.' : '선택한 기록 일지가 삭제되었습니다.');
       const detailModal = document.getElementById('recordDetailModal');
       if (detailModal && !detailModal.classList.contains('hidden')) {
         closeDetailModal();
