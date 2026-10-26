@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 640" width="400" height="640">
+  <defs>
+    <linearGradient id="bodySkinBack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <filter id="shadowBack" x="-10%" y="-5%" width="120%" height="115%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="400" height="640" fill="#ffffff" rx="16"/>
+
+  <!-- Title Badge -->
+  <g transform="translate(16, 20)">
+    <rect width="80" height="24" rx="12" fill="#fef2f2" stroke="#fecaca" stroke-width="1"/>
+    <text x="40" y="16" font-family="'Pretendard', sans-serif" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">👤 뒷면 (Back)</text>
+  </g>
+
+  <!-- Body Group -->
+  <g filter="url(#shadowBack)" transform="translate(0, 10)">
+    <!-- Head (Back of head / Occiput) -->
+    <ellipse cx="200" cy="50" rx="28" ry="34" fill="url(#bodySkinBack)" stroke="#64748b" stroke-width="1.8"/>
+    <path d="M 184 65 Q 200 70 216 65" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+
+    <!-- Ears -->
+    <path d="M 172 44 C 168 44 167 56 172 58" fill="none" stroke="#64748b" stroke-width="1.5"/>
+    <path d="M 228 44 C 232 44 233 56 228 58" fill="none" stroke="#64748b" stroke-width="1.5"/>
+
+    <!-- Back Body Outline -->
+    <path d="M 186 78 C 186 92 182 98 160 106 
+             L 130 118 C 120 122 114 130 110 145 
+             L 98 195 C 96 205 92 215 88 235 
+             L 78 285 C 76 295 72 305 68 318
+             C 65 328 68 335 74 336
+             C 80 337 84 330 87 322
+             L 94 290 L 98 290 L 102 325 C 103 330 108 330 110 324 L 112 285
+             C 118 250 126 215 130 190
+             L 134 165 C 138 152 144 148 152 152
+             C 156 170 158 195 160 215
+             C 162 235 158 250 152 268
+             C 148 290 148 320 150 355
+             L 152 390
+             C 152 405 146 425 144 445
+             L 142 485
+             C 140 515 142 540 140 560
+             C 139 572 145 580 155 582
+             C 165 584 172 576 172 565
+             L 174 535
+             C 176 505 180 470 182 435
+             L 186 395
+             C 188 360 192 320 195 285
+             L 200 282
+             L 205 285
+             C 208 320 212 360 214 395
+             L 218 435
+             C 220 470 224 505 226 535
+             L 228 565
+             C 228 576 235 584 245 582
+             C 255 580 261 572 260 560
+             C 258 540 260 515 258 485
+             L 256 445
+             C 254 425 248 405 248 390
+             L 250 355
+             C 252 320 252 290 248 268
+             C 242 250 238 235 240 215
+             C 242 195 244 170 248 152
+             C 256 148 262 152 266 165
+             L 270 190
+             C 274 215 282 250 288 285
+             L 290 324 C 292 330 297 330 298 325 L 302 290 L 306 290 L 313 322
+             C 316 330 320 337 326 336
+             C 332 335 335 328 332 318
+             L 322 235 C 318 215 314 205 312 195
+             L 300 145 C 296 130 290 122 280 118
+             L 250 106 C 228 98 224 92 224 78 Z"
+          fill="url(#bodySkinBack)" stroke="#64748b" stroke-width="1.8" stroke-linejoin="round"/>
+
+    <!-- Scapula (견갑골 / 날개뼈) -->
+    <path d="M 152 125 C 145 140 148 165 162 175 C 168 155 168 135 152 125 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" opacity="0.8"/>
+    <path d="M 248 125 C 255 140 252 165 238 175 C 232 155 232 135 248 125 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" opacity="0.8"/>
+
+    <!-- 1. Cervical Spine (경추 / 목뼈 C1-C7) -->
+    <g id="cervical_spine">
+      <line x1="200" y1="80" x2="200" y2="108" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="200" cy="84" r="3" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/>
+      <circle cx="200" cy="94" r="3.2" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/>
+      <circle cx="200" cy="104" r="3.5" fill="#ffffff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="238" y="96" font-size="10" font-weight="bold" fill="#3b82f6">경추(목)</text>
+      <line x1="208" y1="94" x2="234" y2="94" stroke="#93c5fd" stroke-width="1" stroke-dasharray="2,2"/>
+    </g>
+
+    <!-- 2. Thoracic Spine (흉추 / 등뼈 T1-T12) -->
+    <g id="thoracic_spine">
+      <line x1="200" y1="110" x2="200" y2="185" stroke="#6366f1" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="200" cy="122" r="3.5" fill="#ffffff" stroke="#6366f1" stroke-width="1.5"/>
+      <circle cx="200" cy="138" r="3.5" fill="#ffffff" stroke="#6366f1" stroke-width="1.5"/>
+      <circle cx="200" cy="154" r="3.5" fill="#ffffff" stroke="#6366f1" stroke-width="1.5"/>
+      <circle cx="200" cy="170" r="3.5" fill="#ffffff" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="135" y="152" font-size="10" font-weight="bold" fill="#6366f1">흉추(등)</text>
+      <line x1="192" y1="148" x2="168" y2="148" stroke="#a5b4fc" stroke-width="1" stroke-dasharray="2,2"/>
+    </g>
+
+    <!-- 3. Lumbar Spine (요추 / 허리뼈 L1-L5) -->
+    <g id="lumbar_spine">
+      <line x1="200" y1="190" x2="200" y2="235" stroke="#ef4444" stroke-width="4.5" stroke-linecap="round"/>
+      <circle cx="200" cy="196" r="4" fill="#ffffff" stroke="#ef4444" stroke-width="1.8"/>
+      <circle cx="200" cy="208" r="4.2" fill="#ffffff" stroke="#ef4444" stroke-width="1.8"/>
+      <circle cx="200" cy="220" r="4.5" fill="#ffffff" stroke="#ef4444" stroke-width="2"/>
+      <circle cx="200" cy="232" r="4.5" fill="#ffffff" stroke="#ef4444" stroke-width="2"/>
+      <text x="242" y="215" font-size="11" font-weight="bold" fill="#ef4444">요추(허리)</text>
+      <line x1="208" y1="212" x2="238" y2="212" stroke="#fca5a5" stroke-width="1" stroke-dasharray="2,2"/>
+    </g>
+
+    <!-- 4. Sacrum & Sacroiliac Joint (천골 및 천장관절 SI-joint) -->
+    <g id="sacroiliac_joint">
+      <polygon points="194,236 206,236 200,265" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+      
+      <ellipse cx="188" cy="245" rx="6" ry="12" fill="#fecaca" stroke="#b91c1c" stroke-width="1.5" transform="rotate(-15 188 245)"/>
+      <ellipse cx="212" cy="245" rx="6" ry="12" fill="#fecaca" stroke="#b91c1c" stroke-width="1.5" transform="rotate(15 212 245)"/>
+
+      <text x="100" y="250" font-size="11" font-weight="bold" fill="#b91c1c">천장관절(골반)</text>
+      <line x1="180" y1="246" x2="162" y2="246" stroke="#f87171" stroke-width="1" stroke-dasharray="2,2"/>
+    </g>
+
+    <!-- Gluteal Cleft -->
+    <path d="M 200 265 L 200 290" stroke="#94a3b8" stroke-width="1.5"/>
+    <path d="M 160 270 Q 180 292 200 290" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+    <path d="M 240 270 Q 220 292 200 290" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+
+    <!-- Popliteal Fossa (오금) -->
+    <path d="M 160 405 Q 168 400 176 405" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+    <path d="M 224 405 Q 232 400 240 405" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+
+    <!-- Calves -->
+    <path d="M 152 445 Q 168 465 170 495" fill="none" stroke="#cbd5e1" stroke-width="1.2"/>
+    <path d="M 248 445 Q 232 465 230 495" fill="none" stroke="#cbd5e1" stroke-width="1.2"/>
+
+    <!-- 5. Achilles Tendon & Heel -->
+    <g id="achilles_tendon">
+      <line x1="158" y1="520" x2="158" y2="558" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="158" cy="564" rx="7" ry="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+
+      <line x1="242" y1="520" x2="242" y2="558" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="242" cy="564" rx="7" ry="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+
+      <text x="270" y="546" font-size="10" font-weight="bold" fill="#dc2626">아킬레스건 / 발뒤꿈치</text>
+      <line x1="247" y1="542" x2="266" y2="542" stroke="#f87171" stroke-width="1" stroke-dasharray="2,2"/>
+    </g>
+  </g>
+
+  <!-- Legend / Guide text -->
+  <g transform="translate(20, 615)" font-family="'Pretendard', sans-serif" font-size="11" fill="#64748b">
+    <circle cx="6" cy="-4" r="5" fill="#dc2626"/>
+    <text x="16" y="0">붉은색 표시 = 척추염·관절염 주요 호발 부위 (요추·천장관절·발뒤꿈치)</text>
+  </g>
+</svg>

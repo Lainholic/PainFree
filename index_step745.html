@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PainFree & PainFree Care — Mobile Wearable AI Ecosystem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a12;
+      --phone-border: #1e293b;
+      --card-bg: rgba(15, 23, 42, 0.95);
+      --nvidia-green: #76b900;
+      --nebius-purple: #9333ea;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --text-sub: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Pretendard', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #070a12 85%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 8px;
+    }
+    /* Mobile Device Chassis (Single Phone) */
+    .mobile-frame {
+      width: 100%;
+      max-width: 414px;
+      height: 870px;
+      background: #0f172a;
+      border: 8px solid var(--phone-border);
+      border-radius: 46px;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.8), 0 0 40px rgba(118, 185, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    /* Status Bar */
+    .status-bar {
+      height: 38px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-sub);
+      background: #0f172a;
+      z-index: 10;
+    }
+    .notch { width: 100px; height: 20px; background: #000; border-radius: 16px; }
+    /* App Navigation Bar (Top Mode Switcher) */
+    .app-top-nav {
+      padding: 8px 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--nvidia-green), #4d7c0f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: black;
+      font-size: 14px;
+    }
+    .brand-title { font-size: 15px; font-weight: 800; }
+    .brand-sub { font-size: 9px; color: var(--nvidia-green); font-weight: 600; display: block; }
+    .lang-btn {
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    /* Segmented Tabs */
+    .tab-pills {
+      display: flex;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .tab-pill {
+      flex: 1;
+      padding: 7px 4px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-sub);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-pill.active {
+      background: #1e293b;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .tab-pill.active.pill-care {
+      background: linear-gradient(135deg, rgba(118, 185, 0, 0.2), rgba(118, 185, 0, 0.05));
+      color: var(--nvidia-green);
+      border: 1px solid rgba(118, 185, 0, 0.4);
+    }
+    .tab-pill.active.pill-wearable {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.05));
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    /* Main Content Container */
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px 80px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .tab-content.show { display: flex; }
+    .tab-content::-webkit-scrollbar { display: none; }
+    /* Card Component */
+    .ui-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ui-card-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* Interactive Human Silhouette Body Map */
+    .body-map-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 0;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .body-svg-wrap {
+      width: 150px;
+      height: 250px;
+      position: relative;
+    }
+    .body-point {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.2);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    .body-point:hover { transform: translate(-50%, -50%) scale(1.2); }
+    .body-point.selected {
+      background: #dc2626;
+      border-color: #ef4444;
+      box-shadow: 0 0 12px #dc2626;
+      animation: pulsePoint 1.5s infinite;
+    }
+    @keyframes pulsePoint {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    .body-point-dot { width: 6px; height: 6px; border-radius: 50%; background: white; }
+    .body-info-side {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 170px;
+    }
+    .active-part-badge {
+      font-size: 13px;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 6px 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    /* Pain Slider */
+    .pain-slider-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .pain-header { display: flex; justify-content: space-between; align-items: center; }
+    .pain-badge {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #dc2626;
+      color: white;
+    }
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: linear-gradient(to right, #10b981, #f59e0b, #dc2626);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      cursor: pointer;
+    }
+    /* Smart Wearable Daily Report */
+    .wearable-hero {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(30, 27, 75, 0.6));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .watch-icon {
+      font-size: 36px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 6px;
+    }
+    .wearable-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat-tile {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-tile-val { font-size: 16px; font-weight: 800; }
+    .stat-tile-sub { font-size: 10px; color: var(--text-sub); }
+    .stat-alert { color: #ef4444; }
+    /* Camera & Scanner */
+    .scanner-box {
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .laser-line {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--nvidia-green);
+      box-shadow: 0 0 10px 2px var(--nvidia-green);
+      animation: laserScan 1.4s infinite ease-in-out;
+    }
+    @keyframes laserScan {
+      0% { top: 5%; }
+      50% { top: 90%; }
+      100% { top: 5%; }
+    }
+    .preset-row { display: flex; gap: 6px; }
+    .preset-btn {
+      flex: 1;
+      padding: 6px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      text-align: center;
+    }
+    .preset-btn:hover { border-color: var(--accent); color: white; }
+    .btn-action-main {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--nvidia-green), #4d7c0f);
+      color: black;
+      font-weight: 800;
+      font-size: 13px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(118, 185, 0, 0.35);
+    }
+    .btn-action-main:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; }
+    /* Care Savings & Score */
+    .savings-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(56, 189, 248, 0.15));
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .savings-num { font-size: 22px; font-weight: 800; color: #34d399; }
+    .score-breakdown-box {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px;
+      background: rgba(0,0,0,0.25);
+      border-radius: 10px;
+    }
+    .score-row-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .bar-bg {
+      height: 5px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 2px;
+      margin-bottom: 3px;
+    }
+    .bar-val { height: 100%; border-radius: 3px; background: var(--nvidia-green); }
+    .timeline-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+    }
+    .node-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+    }
+    .node-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #334155;
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .node-dot.active { background: #dc2626; box-shadow: 0 0 6px #dc2626; }
+    .node-dot.good { background: #10b981; }
+    .markdown-box {
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .care-actions-row { display: flex; gap: 8px; margin-top: 4px; }
+    .care-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .care-btn-appeal {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent);
+    }
+    .care-btn-paypal { background: #0070ba; color: white; }
+    /* Bottom Bar */
+    .app-bottom-bar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 56px;
+      background: #090d16;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 20;
+    }
+    .bottom-tab-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+    }
+    .bottom-tab-unit.active { color: var(--nvidia-green); }
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: black;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-frame">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="notch"></div>
+      <span>5G 100%</span>
+    </div>
+
+    <!-- App Top Navigation -->
+    <div class="app-top-nav">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="brand-logo">P</div>
+          <div>
+            <div class="brand-title">PainFree Mobile</div>
+            <div class="brand-sub">Powered by NVIDIA & Nebius Token Factory</div>
+          </div>
+        </div>
+        <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN / KR</button>
+      </div>
+
+      <!-- Segmented Mode Switcher -->
+      <div class="tab-pills">
+        <div class="tab-pill active" id="pill-patient" onclick="switchTab('patient')">🩺 PainFree Map</div>
+        <div class="tab-pill pill-wearable" id="pill-wearable" onclick="switchTab('wearable')">⌚ Wearable AI</div>
+        <div class="tab-pill pill-care" id="pill-care" onclick="switchTab('care')">🛡️ Care & Bills</div>
+      </div>
+    </div>
+
+    <!-- TAB 1: PAINFREE PATIENT (Interactive Silhouette Body Map) -->
+    <div class="tab-content show" id="tab-patient">
+      
+      <div class="ui-card">
+        <div class="ui-card-title">
+          <span id="lbl-bodymap-title">Interactive Pain Body Map</span>
+          <span style="color:var(--accent); font-size:10px;">Touch Body Silhouette</span>
+        </div>
+
+        <div class="body-map-container">
+          <!-- Human Body Silhouette SVG -->
+          <div class="body-svg-wrap">
+            <svg viewBox="0 0 100 170" width="100%" height="100%" style="opacity: 0.7;">
+              <!-- Head -->
+              <ellipse cx="50" cy="18" rx="10" ry="12" fill="#334155" />
+              <!-- Neck -->
+              <rect x="47" y="30" width="6" height="7" fill="#334155" />
+              <!-- Torso & Chest -->
+              <path d="M 36 37 L 64 37 L 60 78 L 40 78 Z" fill="#334155" />
+              <!-- Abdomen & Pelvis -->
+              <path d="M 40 78 L 60 78 L 57 100 L 43 100 Z" fill="#334155" />
+              <!-- Left Arm -->
+              <path d="M 35 38 L 24 70 L 19 98 L 23 100 L 28 73 L 38 43 Z" fill="#334155" />
+              <!-- Right Arm -->
+              <path d="M 65 38 L 76 70 L 81 98 L 77 100 L 72 73 L 62 43 Z" fill="#334155" />
+              <!-- Left Leg -->
+              <path d="M 43 100 L 37 136 L 36 166 L 42 166 L 47 136 L 49 100 Z" fill="#334155" />
+              <!-- Right Leg -->
+              <path d="M 57 100 L 63 136 L 64 166 L 58 166 L 53 136 L 51 100 Z" fill="#334155" />
+            </svg>
+
+            <!-- Touch Interactive Points -->
+            <div class="body-point" style="top: 11%; left: 50%;" onclick="mapTouch('Head', 11, 50)" title="Head"><div class="body-point-dot"></div></div>
+            <div class="body-point" style="top: 20%; left: 50%;" onclick="mapTouch('Neck/Cervical', 20, 50)" title="Neck"><div class="body-point-dot"></div></div>
+            <div class="body-point" style="top: 25%; left: 34%;" onclick="mapTouch('Left Shoulder', 25, 34)" title="Left Shoulder"><div class="body-point-dot"></div></div>
+            <div class="body-point" style="top: 25%; left: 66%;" onclick="mapTouch('Right Shoulder', 25, 66)" title="Right Shoulder"><div class="body-point-dot"></div></div>
+            <div class="body-point selected" id="lumbar-point" style="top: 48%; left: 50%;" onclick="mapTouch('Lumbar/Lower Back', 48, 50)" title="Lumbar/Back"><div class="body-point-dot"></div></div>
+            <div class="body-point" style="top: 58%; left: 21%;" onclick="mapTouch('Wrist', 58, 21)" title="Wrist"><div class="body-point-dot"></div></div>
+            <div class="body-point" style="top: 80%; left: 39%;" onclick="mapTouch('Left Knee', 80, 39)" title="Left Knee"><div class="body-point-dot"></div></div>
+            <div class="body-point" style="top: 80%; left: 61%;" onclick="mapTouch('Right Knee', 80, 61)" title="Right Knee"><div class="body-point-dot"></div></div>
+          </div>
+
+          <div class="body-info-side">
+            <span style="font-size:10px; color:var(--text-sub);" id="lbl-active-point">MAPPED REGION</span>
+            <div class="active-part-badge" id="active-part-name">Lumbar / Lower Back</div>
+            <div style="font-size:10px; color:var(--text-sub); line-height:1.4;" id="lbl-body-hint">
+              Tap any joint or spine node directly on the silhouette.
+            </div>
+          </div>
+        </div>
+
+        <div class="pain-slider-wrap">
+          <div class="pain-header">
+            <span style="font-size:11px; font-weight:700;" id="lbl-pain-severity">Pain Severity (VAS 1-10)</span>
+            <span class="pain-badge" id="pain-badge">8 / 10 Severe</span>
+          </div>
+          <input type="range" id="pain-range" min="1" max="10" value="8" oninput="setPain(this.value)">
+          <div style="font-size:10px; color:var(--text-sub); text-align:right;" id="pain-desc">Severe acute pain restricting mobility</div>
+        </div>
+      </div>
+
+      <!-- Quick Action to Care -->
+      <button class="btn-action-main" onclick="switchTab('care')">
+        <span>Proceed to Scan Medical Bill & Audit ➔</span>
+      </button>
+
+    </div>
+
+    <!-- TAB 2: SMART WEARABLE 24H DAILY REPORT -->
+    <div class="tab-content" id="tab-wearable">
+      
+      <div class="wearable-hero">
+        <div class="watch-icon">⌚</div>
+        <div>
+          <div style="font-size:13px; font-weight:800; color:white;">Galaxy Watch / Smart Wearable</div>
+          <div style="font-size:10px; color:#38bdf8;">Continuous 24h Objective Pain Sensing</div>
+        </div>
+      </div>
+
+      <div class="ui-card">
+        <div class="ui-card-title">
+          <span>Daily Mobility & Activity Deficit</span>
+          <span style="color:#ef4444; font-size:10px; font-weight:700;">-86% Drop</span>
+        </div>
+        <div class="wearable-stats-grid">
+          <div class="stat-tile">
+            <div class="stat-tile-sub">Today Steps</div>
+            <div class="stat-tile-val stat-alert">1,180 steps</div>
+            <div class="stat-tile-sub">Baseline: 8,400</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile-sub">Gait Velocity</div>
+            <div class="stat-tile-val stat-alert">0.42 m/s</div>
+            <div class="stat-tile-sub">Restricted Lumbar Gait</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-card">
+        <div class="ui-card-title">
+          <span>Nocturnal Pain Micro-Arousal</span>
+          <span style="color:#f59e0b; font-size:10px;">Sleep Disruption</span>
+        </div>
+        <div class="wearable-stats-grid">
+          <div class="stat-tile">
+            <div class="stat-tile-sub">Tossing & Turning</div>
+            <div class="stat-tile-val" style="color:#f59e0b;">42 Events</div>
+            <div class="stat-tile-sub">Pain arousal during turn</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-tile-sub">Resting Heart Rate</div>
+            <div class="stat-tile-val" style="color:#ef4444;">86 bpm (+18%)</div>
+            <div class="stat-tile-sub">Sympathetic Stress Spike</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-card" style="background: rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.3);">
+        <div class="ui-card-title">
+          <span style="color:#38bdf8;">AI Daily Objective Pain Synthesis</span>
+        </div>
+        <div style="font-size:11px; line-height:1.5; color:#cbd5e1;">
+          <strong>Objective Clinical Verdict:</strong> Patient-reported VAS 8/10 is objectively validated by an 86% collapse in physical mobility and 42 nocturnal pain arousals. Strongly corroborates acute lumbar pathology.
+        </div>
+      </div>
+
+      <button class="btn-action-main" onclick="switchTab('care')">
+        <span>Forward Objective Data to Bill Auditor ➔</span>
+      </button>
+
+    </div>
+
+    <!-- TAB 3: PAINFREE CARE (Medical Bill & Rx Auditor) -->
+    <div class="tab-content" id="tab-care">
+      
+      <!-- Scan Card -->
+      <div class="ui-card">
+        <div class="ui-card-title">
+          <span id="lbl-scan-heading">Hospital Rx & Bill Scanner</span>
+          <span style="color:#10b981; font-size:10px;">openFDA & Nemotron</span>
+        </div>
+
+        <div class="preset-row">
+          <div class="preset-btn" onclick="applyPreset('us')">🇺🇸 US ER Bill ($3,450)</div>
+          <div class="preset-btn" onclick="applyPreset('kr')">🇰🇷 KR Lumbar Rx (8 VAS)</div>
+        </div>
+
+        <div class="scanner-box" onclick="document.getElementById('file-in').click()">
+          <div class="laser-line" id="laser-line"></div>
+          <div style="font-size:24px; margin-bottom:2px;">📸</div>
+          <div style="font-size:12px; font-weight:700;" id="scan-hint">Tap to Snap Medical Bill</div>
+          <div style="font-size:10px; color:var(--text-sub);">Zero-Hallucination via openFDA CC0</div>
+          <input type="file" id="file-in" accept="image/*" style="display:none" onchange="fileChosen(event)">
+        </div>
+
+        <textarea id="hidden-text" style="display:none;"></textarea>
+
+        <button class="btn-action-main" id="btn-audit" onclick="executeCareAudit()">
+          <span id="btn-audit-txt">⚡ Audit with NVIDIA Nemotron 3 Ultra</span>
+        </button>
+      </div>
+
+      <!-- Audit Results (Visible upon audit) -->
+      <div id="care-results" style="display:none; flex-direction:column; gap:10px;">
+        
+        <!-- Savings Banner -->
+        <div class="savings-card">
+          <div>
+            <div style="font-size:10px; color:#a7f3d0; font-weight:700;" id="lbl-savings-title">ESTIMATED DISPUTE SAVINGS</div>
+            <div style="font-size:10px; color:var(--text-sub);" id="savings-reason">Out-of-network PT Fee Reduction</div>
+          </div>
+          <div class="savings-num" id="savings-amount">-$920.00</div>
+        </div>
+
+        <!-- 3-Bar Explainable Score -->
+        <div class="score-breakdown-box">
+          <div class="score-row-item">
+            <span>Overall Alignment Score</span>
+            <span style="color:var(--nvidia-green);">78 / 100</span>
+          </div>
+          <div class="bar-bg"><div class="bar-val" style="width:78%;"></div></div>
+
+          <div class="score-row-item">
+            <span style="color:var(--text-sub); font-size:10px;">Diagnostic Correlation</span>
+            <span style="font-size:10px;">95%</span>
+          </div>
+          <div class="bar-bg"><div class="bar-val" style="width:95%;"></div></div>
+
+          <div class="score-row-item">
+            <span style="color:var(--text-sub); font-size:10px;">Analgesic Adequacy (Pain 8 VAS)</span>
+            <span style="font-size:10px; color:#f59e0b;">62% (Gap)</span>
+          </div>
+          <div class="bar-bg"><div class="bar-val" style="width:62%; background:#f59e0b;"></div></div>
+
+          <div class="score-row-item">
+            <span style="color:var(--text-sub); font-size:10px;">Billing Fairness (FairPrice)</span>
+            <span style="font-size:10px; color:#ef4444;">45% (Overbilling)</span>
+          </div>
+          <div class="bar-bg"><div class="bar-val" style="width:45%; background:#ef4444;"></div></div>
+        </div>
+
+        <!-- Pain Recovery Timeline -->
+        <div class="ui-card" style="padding:10px;">
+          <div class="ui-card-title">
+            <span>Pain Outcome Recovery Tracker</span>
+          </div>
+          <div class="timeline-strip">
+            <div class="node-col">
+              <div class="node-dot active">8</div>
+              <span style="font-weight:700;">Day 0</span>
+              <span style="color:var(--text-sub);">Acute</span>
+            </div>
+            <div style="flex:1; height:2px; background:#475569; margin: 0 4px;"></div>
+            <div class="node-col">
+              <div class="node-dot" style="background:#f59e0b;">5</div>
+              <span style="font-weight:700;">Day 2</span>
+              <span style="color:var(--text-sub);">Response</span>
+            </div>
+            <div style="flex:1; height:2px; background:#475569; margin: 0 4px;"></div>
+            <div class="node-col">
+              <div class="node-dot good">2</div>
+              <span style="font-weight:700;">Day 5</span>
+              <span style="color:var(--text-sub);">Recovered</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinical Markdown -->
+        <div class="ui-card" style="padding:10px;">
+          <div class="ui-card-title">
+            <span>Clinical & Regulatory Audit Verdict</span>
+          </div>
+          <div class="markdown-box" id="markdown-output"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="care-actions-row">
+          <button class="care-btn care-btn-appeal" onclick="copyAppealLetter()">
+            <span>📝 Dispute Letter</span>
+          </button>
+          <button class="care-btn care-btn-paypal" onclick="alert('PayPal CarePay: Splitting remaining $2,530 into 4 payments of $632.50/mo.')">
+            <span>💳 Pay in 4</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- App Bottom Bar -->
+    <div class="app-bottom-bar">
+      <div class="bottom-tab-unit active" onclick="switchTab('patient')">
+        <span>🩺</span>
+        <span>Map</span>
+      </div>
+      <div class="bottom-tab-unit" onclick="switchTab('wearable')">
+        <span>⌚</span>
+        <span>Watch</span>
+      </div>
+      <div class="bottom-tab-unit" onclick="switchTab('care')">
+        <span>🛡️</span>
+        <span>Care</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentLang = 'en';
+    let currentPart = 'Lumbar/Lower Back';
+    let currentPain = 8;
+    let imageBase64 = null;
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('show'));
+      document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.bottom-tab-unit').forEach(b => b.classList.remove('active'));
+
+      if (tab === 'patient') {
+        document.getElementById('tab-patient').classList.add('show');
+        document.getElementById('pill-patient').classList.add('active');
+        document.querySelectorAll('.bottom-tab-unit')[0].classList.add('active');
+      } else if (tab === 'wearable') {
+        document.getElementById('tab-wearable').classList.add('show');
+        document.getElementById('pill-wearable').classList.add('active');
+        document.querySelectorAll('.bottom-tab-unit')[1].classList.add('active');
+      } else {
+        document.getElementById('tab-care').classList.add('show');
+        document.getElementById('pill-care').classList.add('active');
+        document.querySelectorAll('.bottom-tab-unit')[2].classList.add('active');
+      }
+    }
+
+    function mapTouch(partName, top, left) {
+      document.querySelectorAll('.body-point').forEach(p => p.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+      currentPart = partName;
+      document.getElementById('active-part-name').innerText = partName;
+    }
+
+    function setPain(val) {
+      currentPain = val;
+      const b = document.getElementById('pain-badge');
+      const d = document.getElementById('pain-desc');
+      if (val <= 3) {
+        b.style.background = '#10b981';
+        b.innerText = `${val} / 10 Mild`;
+        d.innerText = currentLang === 'ko' ? '일상생활 가능한 경미한 통증' : 'Mild discomfort, easily manageable';
+      } else if (val <= 6) {
+        b.style.background = '#f59e0b';
+        b.innerText = `${val} / 10 Moderate`;
+        d.innerText = currentLang === 'ko' ? '활동을 제한하는 중간 통증' : 'Moderate pain interfering with routine';
+      } else {
+        b.style.background = '#dc2626';
+        b.innerText = `${val} / 10 Severe`;
+        d.innerText = currentLang === 'ko' ? '움직임이 극히 어려운 극심한 통증' : 'Severe acute pain restricting mobility';
+      }
+    }
+
+    function applyPreset(t) {
+      const area = document.getElementById('hidden-text');
+      if (t === 'us') {
+        currentPart = 'Lumbar/Lower Back';
+        setPain(8);
+        document.getElementById('scan-hint').innerText = '📄 US ER Bill ($3,450) Ready';
+        area.value = 
+`[Hospital Itemized Statement]
+Facility: Metro General Hospital - Emergency Dept
+Patient Chief Complaint: Acute Severe Lumbar Spine Sprain (VAS 8)
+- CPT 99284: Emergency Dept Visit Level 4: $1,850.00
+- CPT 72040: Lumbar Spine X-Ray 2 Views: $680.00
+- CPT 97140: Manual Physical Therapy (Out-of-network): $920.00
+* Patient Out-of-Pocket Balance Due: $3,450.00`;
+      } else {
+        currentPart = 'Lumbar/Lower Back';
+        setPain(8);
+        document.getElementById('scan-hint').innerText = '📄 한국 정형외과 처방전 로드됨';
+        area.value = 
+`[처방전 및 비급여 내역]
+환자 호소: 급성 요추염좌 및 허리 격통 (통증 8점)
+- 록소프로펜나트륨 68.1mg 1일 3회
+- 에페리손염산염 50mg 1일 3회
+- 비급여 도수치료: 120,000원 (전액 본인부담)
+- 비급여 체외충격파: 70,000원 (전액 본인부담)
+* 총 결제금액: 203,400원`;
+      }
+    }
+
+    function fileChosen(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        imageBase64 = evt.target.result.split(',')[1];
+        document.getElementById('scan-hint').innerText = `📷 Photo Attached (${file.name})`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function executeCareAudit() {
+      const btn = document.getElementById('btn-audit');
+      const laser = document.getElementById('laser-line');
+      const results = document.getElementById('care-results');
+      const textVal = document.getElementById('hidden-text').value;
+
+      if (!textVal && !imageBase64) {
+        applyPreset(currentLang === 'en' ? 'us' : 'kr');
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div><span>NVIDIA Nemotron Auditing...</span>';
+      laser.style.display = 'block';
+
+      try {
+        const resp = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            text: document.getElementById('hidden-text').value,
+            image: imageBase64,
+            body_part: currentPart,
+            pain_score: currentPain,
+            lang: currentLang,
+            model: imageBase64 ? 'super-vl' : 'ultra'
+          })
+        });
+
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error);
+
+        laser.style.display = 'none';
+        results.style.display = 'flex';
+        document.getElementById('markdown-output').innerText = data.analysis;
+
+        if (data.metrics) {
+          document.getElementById('savings-amount').innerText = '-' + data.metrics.estimated_savings;
+          document.getElementById('savings-reason').innerText = data.metrics.savings_reason;
+        }
+
+      } catch (err) {
+        alert('Error: ' + err.message);
+        laser.style.display = 'none';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span id="btn-audit-txt">${currentLang === 'ko' ? '⚡ NVIDIA 초거대 AI로 정밀 감사' : '⚡ Audit with NVIDIA Nemotron 3 Ultra'}</span>`;
+      }
+    }
+
+    function copyAppealLetter() {
+      const fullText = document.getElementById('markdown-output').innerText;
+      let letter = "Formal Medical Bill Dispute Appeal Letter\nTo: Hospital Billing Department\n...";
+      if (fullText.includes("Dispute Letter") || fullText.includes("이의신청서")) {
+        letter = fullText.split(/Dispute Letter|이의신청서/)[1];
+      }
+      navigator.clipboard.writeText(letter.trim());
+      alert(currentLang === 'ko' ? '병원 원무과 제출용 공식 이의신청서가 복사되었습니다!' : 'Official Hospital Dispute Appeal Letter copied to clipboard!');
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === 'en' ? 'ko' : 'en';
+      document.getElementById('lang-btn').innerText = currentLang === 'en' ? 'EN / KR' : 'KR / EN';
+      if (currentLang === 'ko') {
+        document.getElementById('lbl-bodymap-title').innerText = '인터랙티브 인체 통증 바디맵';
+        document.getElementById('lbl-active-point').innerText = '선택된 통증 부위';
+        document.getElementById('lbl-pain-severity').innerText = '통증 강도 (VAS 1-10)';
+        document.getElementById('lbl-scan-heading').innerText = '처방전 / 병원비 촬영 및 스캐너';
+        document.getElementById('btn-audit-txt').innerText = '⚡ NVIDIA 초거대 AI로 정밀 감사';
+        document.getElementById('lbl-savings-title').innerText = '예상 이의신청 절감액';
+      } else {
+        document.getElementById('lbl-bodymap-title').innerText = 'Interactive Pain Body Map';
+        document.getElementById('lbl-active-point').innerText = 'MAPPED REGION';
+        document.getElementById('lbl-pain-severity').innerText = 'Pain Severity (VAS 1-10)';
+        document.getElementById('lbl-scan-heading').innerText = 'Hospital Rx & Bill Scanner';
+        document.getElementById('btn-audit-txt').innerText = '⚡ Audit with NVIDIA Nemotron 3 Ultra';
+        document.getElementById('lbl-savings-title').innerText = 'ESTIMATED DISPUTE SAVINGS';
+      }
+    }
+  </script>
+</body>
+</html>

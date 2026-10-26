@@ -1,0 +1,9 @@
+.env
+__pycache__/
+.serena/
+_work/
+*.pyc
+# 실제 API 키가 하드코딩된 파일: 커밋 금지 (2026-10-27 확인)
+consult_architecture.py
+run_deepseek_harness.py
+test_call.py
