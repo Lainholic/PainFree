@@ -101,11 +101,11 @@ class HackathonHandler(http.server.SimpleHTTPRequestHandler):
         try:
             if self.path == "/api/scan-receipt":
                 body = self._read_json(rp.MAX_IMAGE_CHARS + 10_000)
-                lines, ocr_ms = rp.ocr_image(NEBIUS_BASE_URL, NEBIUS_API_KEY, body.get("image"))
+                lines, ocr_ms, model_used = rp.ocr_image(NEBIUS_BASE_URL, NEBIUS_API_KEY, body.get("image"))
                 t0 = time.time()
                 parsed = rp.parse_receipt(lines)
                 parse_ms = round((time.time() - t0) * 1000, 1)
-                self._send_json(200, {"status": "success", "ocr_model": rp.OCR_MODEL, "ocr_latency_ms": ocr_ms,
+                self._send_json(200, {"status": "success", "ocr_model": model_used, "ocr_latency_ms": ocr_ms,
                                       "parse_latency_ms": parse_ms, "lines": lines, "parsed": parsed})
                 return
 
@@ -138,7 +138,10 @@ class HackathonHandler(http.server.SimpleHTTPRequestHandler):
             print(f"[!] Nebius HTTP {e.code}: {detail}")
             self._send_json(502, {"status": "error", "error": f"Nebius API 오류 HTTP {e.code}"})
         except Exception as e:
-            print(f"[!] 처리 오류: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.stdout.flush()
+            print(f"[!] 처리 오류: {e}", flush=True)
             self._send_json(500, {"status": "error", "error": str(e)[:300]})
 
 
