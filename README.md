@@ -1,8 +1,9 @@
 # PainFree (페인프리)
 
 > Patient-side subjective pain telemetry archive and medical bill causal inquiry assistant, built for the Nebius x NVIDIA Global AI Hackathon.
+> Designed and directed by a solo non-developer creator pairing with autonomous AI agents (Google Antigravity & OpenAI Codex).
 
-PainFree connects two sides of post-operative and chronic pain care: the patient's daily pain telemetry (VAS, localized anatomical laser pins, and wearable step drops) and the hospital's dense itemized bill. It uses NVIDIA Nemotron vision and reasoning models hosted on the Nebius Token Factory to audit billed lines, separate in-hospital surgical drugs from discharge care, and draft polite inquiry letters for hospital billing offices.
+PainFree connects two sides of post-operative and chronic pain care: the patient's daily pain telemetry (VAS, localized anatomical laser pins, and wearable step drops) and the hospital's dense itemized bill. Directed by a solo non-developer creator and built via AI pair programming, it uses NVIDIA Nemotron vision and reasoning models hosted on the Nebius Token Factory to audit billed lines, separate in-hospital surgical drugs from discharge care, and draft polite inquiry letters for hospital billing offices.
 
 ---
 
@@ -83,6 +84,7 @@ Open `http://127.0.0.1:8585` in your browser.
 - **Nebius Token Factory 30B MoE**: We initially tested large 550B models, but 25–40s response times felt clunky for a patient interface. Switching to Nemotron-3-Nano-30B-A3B cut end-to-end reasoning down to 8.2 seconds without losing clinical extraction quality.
 - **Procedural Drug Separation**: Hospital surgical bills include heavy IV anesthetics (Propofol) and paralytics (Rocuronium). Giving home-care advice like "take with food" on these items is clinically incorrect. The pipeline separates in-hospital surgical medications from take-home instructions.
 - **Deterministic Server-Side Re-parsing**: Client-provided JSON is never blindly trusted. The Python backend re-parses raw OCR text deterministically to ensure consistent provenance (`server_reparsed`).
+- **Solo Creator & AI Agent Orchestration**: As a non-developer creator, I directed autonomous AI agents (Google Antigravity for pipeline engineering, OpenAI Codex for browser automation, and Sol/DeepSeek for adversarial audits). This cross-validation caught dangerous clinical assumptions early and kept the codebase lean and verifiable.
 
 ---
 
