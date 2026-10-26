@@ -1,0 +1,88 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "timings": [
+    {
+      "name": "ready",
+      "t": 0
+    },
+    {
+      "name": "english",
+      "t": 1.253
+    },
+    {
+      "name": "pain_end",
+      "t": 6.589
+    },
+    {
+      "name": "wearable_end",
+      "t": 13
+    },
+    {
+      "name": "consent_start",
+      "t": 15.306
+    },
+    {
+      "name": "ocr_start",
+      "t": 18.831
+    },
+    {
+      "name": "ocr_end",
+      "t": 24.653
+    },
+    {
+      "name": "audit_start",
+      "t": 28.401
+    },
+    {
+      "name": "audit_end",
+      "t": 33.914
+    },
+    {
+      "name": "advisory_end",
+      "t": 40.656
+    },
+    {
+      "name": "end",
+      "t": 48.901
+    }
+  ],
+  "errors": [],
+  "cursor": "visual pointer follows actual browser input; no OS cursor capture",
+  "liveApi": true,
+  "date": "2026-10-27",
+  "final_file": "PainFree_Codex_Demo.mp4",
+  "source_file": "PainFree_Codex_Demo_Source.webm",
+  "duration_seconds": 48.88,
+  "resolution": [
+    1280,
+    800
+  ],
+  "fps": 25,
+  "codec": "H.264",
+  "audio": false,
+  "source_duration_seconds": 51.16,
+  "edits": {
+    "browser_setup_trim_seconds": 2.2589999999999932,
+    "ocr_wait_removed_seconds": 2,
+    "captured_postcare_frame_hold_seconds": 2,
+    "mouse_action_speed_changed": false
+  },
+  "verification": {
+    "full_decode": true,
+    "page_errors": [],
+    "successful_live_recording": true,
+    "second_take": "Live reasoning exceeded 120-second client wait; first successful take used."
+  },
+  "content": "Live app, uploaded supplied de-identified US bill, OCR, live reasoning, advisory, save, doctor report. Browser-input cursor overlay.",
+  "cleanup": {
+    "own_temporary_files_removed": 44,
+    "remaining_own_temporary_files": 0,
+    "preexisting_files_preserved": [
+      "run_luna_audit.py"
+    ]
+  },
+  "source_sha256": "57e4e93199acf6f0894371eaf31482228c1d89ede86e765e812b9ac2c9025296"
+}

@@ -369,8 +369,8 @@
         <!-- Audit Progress Indicator -->
         <div id="auditLoading" class="hidden mt-3 p-3 bg-slate-900/90 rounded-xl border border-cyan-500/30 text-center">
           <div class="inline-block animate-spin text-cyan-400 mb-1.5 text-base"><i class="fa-solid fa-circle-notch"></i></div>
-          <p class="text-xs font-semibold text-cyan-300">NVIDIA Nemotron 추론 중...</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">영수증 항목 × 통증 기록 × 활동량 대조</p>
+          <p id="auditLoadingTitle" class="text-xs font-semibold text-cyan-300">NVIDIA Nemotron 추론 중...</p>
+          <p id="auditLoadingSub" class="text-[10px] text-slate-400 mt-0.5">영수증 항목 × 통증 기록 × 활동량 대조</p>
         </div>
 
         <!-- AUDIT RESULT CARD -->
@@ -815,6 +815,64 @@
     let currentReceipt = null;   // { lines, parsed } returned by /api/scan-receipt
     let currentAudit = null;     // last live 550B result
     let trendChartInstance = null;
+    const stageMessages = new Map();
+
+    function conditionLabel(name, lang = uiLang) {
+      const keys = ['요추 디스크(추간판 탈출증)', '척추관 협착증', '만성 관절염 / 류마티스', '급성 염좌 / 근막통증'];
+      const index = name === '요추 디스크 (추간판탈출)' ? 0 : keys.indexOf(name);
+      return index < 0 ? name : I18N[lang].conditions[index];
+    }
+
+    function regionLabels(value) {
+      return String(value || '').split(',').map(region => {
+        const name = region.trim();
+        const key = Object.keys(I18N.KR.quickChips).find(k => k === name || I18N.EN.quickChips[k] === name);
+        if (key) return I18N[uiLang].quickChips[key];
+        return ['부위 미선택', 'No region selected', 'No regions selected', ''].includes(name) ? I18N[uiLang].journalNoRegion : name;
+      }).join(', ');
+    }
+
+    function journalPins(item) {
+      const match = String(item.pins || '').match(/(?:앞면|Front)\s*(\d+)(?:개| pins)?\s*\/\s*(?:뒷면|Back)\s*(\d+)(?:개| pins)?/i);
+      if (match) return uiLang === 'EN' ? `Front ${match[1]} / Back ${match[2]}` : `앞면 ${match[1]}개 / 뒷면 ${match[2]}개`;
+      return String(item.pins || '').replace(/뒷면\s*(\d+)개/g, uiLang === 'EN' ? 'Back $1' : '$&');
+    }
+
+    function journalWatch(item) {
+      const number = value => value == null ? null : Number(String(value).replace(/,/g, ''));
+      const legacy = String(item.watch || '');
+      const steps = number(item.stepsToday ?? legacy.match(/(?:걸음\s*|Steps\s+)([\d,]+)/)?.[1]);
+      const base = number(item.stepsBase ?? legacy.match(/평소\s*([\d,]+)보/)?.[1]);
+      const awake = number(item.arousal ?? legacy.match(/(?:밤에 깬 시간\s*|Night awake\s+)(\d+)/)?.[1]);
+      const en = uiLang === 'EN';
+      const parts = [];
+      if (steps != null) {
+        const drop = base ? Math.round((steps - base) / base * 100) : null;
+        parts.push(en
+          ? `Steps ${steps.toLocaleString()}${drop == null ? '' : ` (${drop > 0 ? '+' : ''}${drop}% vs baseline)`}`
+          : `걸음 ${steps.toLocaleString()}보${drop == null ? '' : ` (평소 ${base.toLocaleString()}보 대비 ${drop > 0 ? '+' : ''}${drop}%)`}`);
+      }
+      if (awake != null) parts.push(en ? `Night awake ${awake} min` : `밤에 깬 시간 ${awake}분`);
+      return parts.join(', ') || I18N[uiLang].journalNoWatch;
+    }
+
+    function journalAudit(item) {
+      if (item.sample || ['예시 기록', 'Sample entry'].includes(item.audit)) return uiLang === 'EN' ? 'Sample entry' : '예시 기록';
+      if (!item.audit || ['영수증 감사 없음', 'No receipt audit'].includes(item.audit)) return I18N[uiLang].journalNoAudit;
+      return String(item.audit).replace(/^(?:확인 대상:|Target:)\s*/, uiLang === 'EN' ? 'Target: ' : '확인 대상: ');
+    }
+
+    function errorMessage(error, lang = uiLang) {
+      const message = String(error?.message || error || '');
+      return lang === 'EN' && /[가-힣]/.test(message) ? 'The request failed. Please try again.' : message;
+    }
+
+    function updatePinCountBadge() {
+      const total = frontPins.length + backPins.length;
+      const badge = document.getElementById('bodyPinCountBadge');
+      badge.innerHTML = uiLang === 'EN' ? `<span id="pinCountNum">${total}</span> precision pins marked` : `정밀 핀 <span id="pinCountNum">${total}</span>개 마킹됨`;
+      badge.classList.toggle('hidden', total === 0);
+    }
 
     function selectCondition(btn, conditionName) {
       selectedCondition = conditionName;
@@ -829,7 +887,7 @@
       btn.classList.add('border-cyan-500', 'bg-cyan-950/60', 'text-cyan-300', 'active-condition');
       const activeSpan = btn.querySelector('span');
       if (activeSpan) activeSpan.textContent = '● ' + activeSpan.textContent.replace(/^[●○]\s*/, '');
-      showToast(uiLang === 'EN' ? `Condition selected: ${conditionName}` : `기저질환 선택: ${conditionName}`);
+      showToast(uiLang === 'EN' ? `Condition selected: ${conditionLabel(conditionName)}` : `기저질환 선택: ${conditionLabel(conditionName)}`);
       updatePipelineInputs();
     }
 
@@ -904,16 +962,7 @@
 
     function closeBodyMapModal() {
       document.getElementById('bodyMapModal').classList.add('hidden');
-      const totalPins = frontPins.length + backPins.length;
-      const countBadge = document.getElementById('bodyPinCountBadge');
-      const numElem = document.getElementById('pinCountNum');
-      
-      if (totalPins > 0) {
-        countBadge.classList.remove('hidden');
-        numElem.textContent = totalPins;
-      } else {
-        countBadge.classList.add('hidden');
-      }
+      updatePinCountBadge();
     }
 
     function switchBodyView(view) {
@@ -988,6 +1037,7 @@
     function updateModalPinBadge() {
       const total = frontPins.length + backPins.length;
       document.getElementById('modalPinBadge').textContent = `${total}${uiLang === 'EN' ? ' Pins' : '개 핀'}`;
+      updatePinCountBadge();
     }
 
     // 4. Receipt pipeline: photo -> NVIDIA VL OCR -> deterministic parser -> Nemotron 3 Ultra 550B
@@ -996,11 +1046,12 @@
     }
 
     function setStage(id, state, text) {
+      stageMessages.set(id, { state, text });
       const el = document.getElementById(id);
       const color = { wait: 'text-slate-400', run: 'text-cyan-300', ok: 'text-emerald-400', err: 'text-rose-400' }[state];
       const icon = { wait: '○', run: '⏳', ok: '✔', err: '✖' }[state];
       el.className = color;
-      el.textContent = `${icon} ${text}`;
+      el.textContent = `${icon} ${typeof text === 'object' ? text[uiLang] : text}`;
     }
 
     // Downscale on the device before upload (max 1600px, JPEG) - same idea as PainFree Care's on-device capture.
@@ -1017,7 +1068,7 @@
           URL.revokeObjectURL(url);
           resolve(canvas.toDataURL('image/jpeg', 0.88));
         };
-        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('이미지를 열 수 없습니다.')); };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(uiLang === 'EN' ? 'Could not open the image.' : '이미지를 열 수 없습니다.')); };
         img.src = url;
       });
     }
@@ -1034,11 +1085,11 @@
       checkAiConsent(async () => {
         try {
           const res = await fetch(path);
-          if (!res.ok) throw new Error('예시 이미지 HTTP ' + res.status);
+          if (!res.ok) throw new Error((uiLang === 'EN' ? 'Sample image HTTP ' : '예시 이미지 HTTP ') + res.status);
           document.getElementById('uploadLabel').textContent = `${uiLang === 'EN' ? 'Public sample' : '공개 예시'}: ${path}`;
           scanReceipt(await res.blob(), path);
         } catch (e) {
-          showToast('⚠️ ' + e.message);
+          showToast('⚠️ ' + errorMessage(e));
         }
       });
     }
@@ -1055,7 +1106,7 @@
         ? 'Scan a receipt (or pick an example), then run the audit. The live 550B reasoning appears here.'
         : '영수증을 찍거나 예시를 고른 뒤 감사를 실행하면 여기에 추론 근거가 표시됩니다.';
       document.getElementById('auditLatencyBadge').textContent = en ? 'idle' : '분석 대기';
-      ['auditQuestions', 'auditUncertain', 'auditLetterBox'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['auditQuestions', 'auditUncertain', 'auditLetterBox', 'medAdvisoryCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
     }
 
     async function scanReceipt(blob, name) {
@@ -1068,10 +1119,9 @@
       document.getElementById('parsedSummary').classList.add('hidden');
       document.getElementById('ocrRaw').textContent = '';
       document.getElementById('ocrLineCount').textContent = '0';
-      const isEn = uiLang === 'EN';
-      setStage('stageOcr', 'run', isEn ? '① Vision OCR (Nemotron-3.5-Super-VL): Reading...' : '① 글자 인식 (Nemotron-3.5-Super-VL): 읽는 중...');
-      setStage('stageParse', 'wait', isEn ? '② Deterministic Parser: Waiting' : '② 숫자·항목 파싱: 대기');
-      setStage('stageReason', 'wait', isEn ? '③ NVIDIA Nemotron Reasoning: Waiting' : '③ NVIDIA Nemotron 추론: 대기');
+      setStage('stageOcr', 'run', { EN: '① Vision OCR (Nemotron-3.5-Super-VL): Reading...', KR: '① 글자 인식 (Nemotron-3.5-Super-VL): 읽는 중...' });
+      setStage('stageParse', 'wait', { EN: '② Deterministic Parser: Waiting', KR: '② 숫자·항목 파싱: 대기' });
+      setStage('stageReason', 'wait', { EN: '③ NVIDIA Nemotron Reasoning: Waiting', KR: '③ NVIDIA Nemotron 추론: 대기' });
 
       try {
         const dataUrl = await imageToDataUrl(blob);
@@ -1087,16 +1137,29 @@
         document.getElementById('ocrRaw').textContent = lines.join('\n');
         document.getElementById('ocrLineCount').textContent = lines.length;
         if (lines.length === 0) {
-          setStage('stageOcr', 'err', isEn ? '① Vision OCR: No text found. Please upload a clearer image.' : '① 글자 인식: 문서 글자를 찾지 못했습니다. 다시 찍어 주세요.');
+          setStage('stageOcr', 'err', { EN: '① Vision OCR: No text found. Please upload a clearer image.', KR: '① 글자 인식: 문서 글자를 찾지 못했습니다. 다시 찍어 주세요.' });
           return;
         }
-        setStage('stageOcr', 'ok', isEn ? `① Vision OCR: ${lines.length} lines (${data.ocr_latency_ms}ms)` : `① 글자 인식: ${lines.length}줄 (${data.ocr_latency_ms}ms)`);
+        currentReceipt = { lines, parsed: data.parsed || {}, source: name, ocrLatency: data.ocr_latency_ms, parseLatency: data.parse_latency_ms };
+        renderReceipt();
+        btn.disabled = false;
+        resetAuditCard();
+        updatePipelineInputs();
+      } catch (e) {
+        setStage('stageOcr', 'err', { EN: '① OCR Failed: ' + errorMessage(e, 'EN'), KR: '① 글자 인식 실패: ' + errorMessage(e, 'KR') });
+        showToast(uiLang === 'EN' ? '⚠️ Bill scanning failed' : '⚠️ 영수증 인식 실패');
+      }
+    }
 
-        const p = data.parsed || {};
+    function renderReceipt() {
+        if (!currentReceipt) return;
+        const isEn = uiLang === 'EN';
+        const { lines, parsed: p, ocrLatency, parseLatency } = currentReceipt;
+        setStage('stageOcr', 'ok', { EN: `① Vision OCR: ${lines.length} lines (${ocrLatency}ms)`, KR: `① 글자 인식: ${lines.length}줄 (${ocrLatency}ms)` });
         const items = p.items || [];
         setStage('stageParse', items.length ? 'ok' : 'err',
-          isEn ? `② Deterministic Parser: ${items.length} items${p.total != null ? ', Total ' + p.total.toLocaleString() : ''} (${data.parse_latency_ms}ms)`
-               : `② 숫자·항목 파싱: 항목 ${items.length}개${p.total != null ? ', 합계 ' + p.total.toLocaleString() : ''} (${data.parse_latency_ms}ms)`);
+          { EN: `② Deterministic Parser: ${items.length} items${p.total != null ? ', Total ' + p.total.toLocaleString() : ''} (${parseLatency}ms)`,
+            KR: `② 숫자·항목 파싱: 항목 ${items.length}개${p.total != null ? ', 합계 ' + p.total.toLocaleString() : ''} (${parseLatency}ms)` });
         document.getElementById('parsedFacility').textContent = p.facility || (isEn ? 'Not detected' : '인식 안 됨');
         document.getElementById('parsedDate').textContent = p.date || (isEn ? 'Not detected' : '인식 안 됨');
         document.getElementById('parsedTotal').textContent = p.total != null ? p.total.toLocaleString() : (isEn ? 'Not detected' : '인식 안 됨');
@@ -1106,15 +1169,7 @@
           : `<tr><td colspan="3" class="text-slate-500 py-1">${isEn ? 'No item lines extracted. Raw OCR text will still be evaluated by Nemotron.' : '항목 줄을 찾지 못했습니다. OCR 원문은 Nemotron 추론 엔진에 그대로 전달됩니다.'}</td></tr>`;
         document.getElementById('parsedSummary').classList.remove('hidden');
 
-        currentReceipt = { lines, parsed: p, source: name };
-        btn.disabled = false;
         document.getElementById('auditHint').textContent = uiLang === 'EN' ? 'Bill scanned. Click audit button to run Nemotron reasoning.' : '인식 완료. 감사를 실행하면 Nemotron 엔진이 내 기록과 대조합니다.';
-        resetAuditCard();
-        updatePipelineInputs();
-      } catch (e) {
-        setStage('stageOcr', 'err', (uiLang === 'EN' ? '① OCR Failed: ' : '① 글자 인식 실패: ') + e.message);
-        showToast(uiLang === 'EN' ? '⚠️ Bill scanning failed' : '⚠️ 영수증 인식 실패');
-      }
     }
 
     // Complete i18n Translation Dictionary
@@ -1127,6 +1182,10 @@
         journalNoAudit: '영수증 감사 없음',
         journalNoWatch: '활동량 미입력',
         journalNoRegion: '부위 미선택',
+        auditLoadingTitle: 'NVIDIA Nemotron 추론 중...',
+        auditLoadingSub: '영수증 항목 × 통증 기록 × 활동량 대조',
+        medProceduralNote: '원내 의료진의 직접 감독 하에 시술·처치 중 투여된 약품이며, 환자 임의 복용 대상이 아닙니다.',
+        receiptPreviewAlt: '영수증 미리보기',
         headerSubtitle: '환자 중심 순수 통증 아카이브',
         bannerNotice: '<strong class="text-white">기록 중심 안내:</strong> 페인프리는 임의의 질병 진단이나 훈계를 하지 않습니다. 환자 본인이 체감한 신체 감각과 객관적 바이오데이터를 온전히 보존합니다.',
         sec1Title: '통증 부위 및 주관 강도 (VAS)',
@@ -1248,6 +1307,10 @@
         journalNoAudit: 'No receipt audit',
         journalNoWatch: 'No activity entered',
         journalNoRegion: 'No region selected',
+        auditLoadingTitle: 'NVIDIA Nemotron reasoning in progress...',
+        auditLoadingSub: 'Comparing bill items, pain records and activity',
+        medProceduralNote: 'Administered during a procedure under direct clinical supervision; not for self-administration.',
+        receiptPreviewAlt: 'Receipt preview',
         headerSubtitle: 'Patient-Centric Subjective Pain Archive',
         bannerNotice: '<strong class="text-white">Notice:</strong> PainFree does not diagnose or lecture. We objectively preserve your subjective pain sensations and biometric data.',
         sec1Title: 'Pain Regions & Subjective VAS',
@@ -1368,6 +1431,8 @@
       if (!t) return;
 
       if (t.docTitle) document.title = t.docTitle;
+      document.documentElement.lang = lang === 'EN' ? 'en' : 'ko';
+      document.getElementById('langKrBtn').textContent = lang === 'EN' ? 'KR' : '한';
 
       const setTxt = (id, txt) => {
         const el = document.getElementById(id);
@@ -1405,6 +1470,14 @@
       setTxt('auditLetterBoxSummary', t.auditLetterBoxSummary);
       setTxt('auditDisclaimerText', t.auditDisclaimerText);
       setTxt('copyDisputeBtnText', t.copyDisputeBtnText);
+      setTxt('auditLoadingTitle', t.auditLoadingTitle);
+      setTxt('auditLoadingSub', t.auditLoadingSub);
+      setTxt('medProceduralNote', t.medProceduralNote);
+      document.getElementById('receiptPreview').alt = t.receiptPreviewAlt;
+      const lineCount = document.getElementById('ocrLineCount').textContent;
+      document.getElementById('summaryOcrRaw').innerHTML = lang === 'EN'
+        ? `View raw OCR text (<span id="ocrLineCount">${lineCount}</span> lines)`
+        : `OCR 원문 보기 (<span id="ocrLineCount">${lineCount}</span>줄)`;
 
       setTxt('pipeHeaderText', t.pipeHeaderText);
       setTxt('pipeCol1Label', t.pipeCol1Label);
@@ -1424,11 +1497,12 @@
       setTxt('thItemName', t.thItemName);
       setTxt('thItemCode', t.thItemCode);
       setTxt('thItemAmt', t.thItemAmt);
-      if (!currentReceipt) {
-        setTxt('stageOcr', t.stageOcrDefault);
-        setTxt('stageParse', t.stageParseDefault);
-        setTxt('stageReason', t.stageReasonDefault);
+      for (const [id, key] of [['stageOcr', 'stageOcrDefault'], ['stageParse', 'stageParseDefault'], ['stageReason', 'stageReasonDefault']]) {
+        const saved = stageMessages.get(id);
+        if (saved) setStage(id, saved.state, saved.text);
+        else setTxt(id, t[key]);
       }
+      if (currentReceipt) renderReceipt();
 
       setTxt('sec3Title', t.sec3Title);
       setTxt('sec3Badge', t.sec3Badge);
@@ -1510,7 +1584,9 @@
         setTxt('reductionReason', t.reductionReasonDefault);
         const b = document.getElementById('auditStatusBadge');
         if (b) b.textContent = t.auditStatusWaiting;
+        setTxt('auditLatencyBadge', lang === 'EN' ? 'idle' : '분석 대기');
       }
+      else renderAuditResult(currentAudit);
 
       // Update placeholders and dynamic lists
       const isEn = lang === 'EN';
@@ -1523,6 +1599,9 @@
 
       updateWearableUI();
       renderJournalList();
+      updateModalPinBadge();
+      if (!document.getElementById('recordDetailModal').classList.contains('hidden')) viewDetail(currentDetailId);
+      if (!document.getElementById('doctorReportModal').classList.contains('hidden')) openDoctorReportModal();
     }
 
     // Header toggle: switches UI & output language
@@ -1564,14 +1643,7 @@
       const c = document.getElementById('pipeConditionText');
       if (!c) return;
       const isEn = uiLang === 'EN';
-      const condMap = {
-        '요추 디스크(추간판 탈출증)': 'Lumbar Disc Herniation',
-        '요추 디스크 (추간판탈출)': 'Lumbar Disc Herniation',
-        '척추관 협착증': 'Spinal Stenosis',
-        '만성 관절염 / 류마티스': 'Chronic Arthritis',
-        '급성 염좌 / 근막통증': 'Acute Sprain'
-      };
-      const displayCond = isEn ? (condMap[selectedCondition] || selectedCondition || 'Not selected') : (selectedCondition || '미선택');
+      const displayCond = conditionLabel(selectedCondition) || (isEn ? 'Not selected' : '미선택');
       c.textContent = `${displayCond} / VAS ${currentVas}`;
       const w = getWearable();
       const parts = [];
@@ -1598,7 +1670,7 @@
       loading.classList.remove('hidden');
       resultCard.classList.add('opacity-50');
       btn.disabled = true;
-      setStage('stageReason', 'run', uiLang === 'EN' ? '③ NVIDIA Nemotron Reasoning: in progress...' : '③ NVIDIA Nemotron 추론: 진행 중...');
+      setStage('stageReason', 'run', { EN: '③ NVIDIA Nemotron Reasoning: in progress...', KR: '③ NVIDIA Nemotron 추론: 진행 중...' });
 
       const w = getWearable();
       const payload = {
@@ -1619,6 +1691,34 @@
         if (!res.ok || data.status !== 'success') throw new Error(data.error || ('HTTP ' + res.status));
         currentAudit = data;
 
+        data.ui_lang = payload.ui_lang;
+        renderAuditResult(data);
+        showToast(`${uiLang === 'EN' ? 'NVIDIA Nemotron inquiry draft generated' : 'NVIDIA Nemotron 질의서 초안 생성'} (${data.live_latency_ms}ms)`);
+      } catch (err) {
+        document.getElementById('auditBillHeader').textContent = uiLang === 'EN' ? '⚠️ Reasoning failed' : '⚠️ 추론 실패';
+        document.getElementById('reductionAmount').textContent = '-';
+        document.getElementById('reductionReason').textContent = (uiLang === 'EN' ? 'Error during server or Nebius API call: ' : '서버 또는 Nebius API 호출 중 오류가 발생했습니다: ') + (errorMessage(err) || (uiLang === 'EN' ? 'Network error' : '네트워크 오류'));
+        setStage('stageReason', 'err', { EN: '③ NVIDIA Nemotron reasoning failed: ' + errorMessage(err, 'EN'), KR: '③ NVIDIA Nemotron 추론 실패: ' + errorMessage(err, 'KR') });
+        showToast(uiLang === 'EN' ? '⚠️ Error occurred during audit.' : '⚠️ 감사 실행 중 오류가 발생했습니다.');
+      } finally {
+        loading.classList.add('hidden');
+        resultCard.classList.remove('opacity-50');
+        btn.disabled = !currentReceipt;
+      }
+    }
+
+    // Keep generated documents in their original language; never relabel a Korean result as English.
+    function renderAuditResult(data) {
+      if (data.ui_lang && data.ui_lang !== uiLang) {
+        document.getElementById('auditBillHeader').textContent = uiLang === 'EN' ? 'Hospital Billing Inquiry Draft' : '병원 원무과 진료비 확인 질의서';
+        document.getElementById('reductionAmount').textContent = '-';
+        document.getElementById('reductionReason').textContent = uiLang === 'EN'
+          ? 'This result was generated in Korean. Run the audit again to generate an English version.'
+          : '이 결과는 영어로 생성되었습니다. 한국어 결과를 보려면 감사를 다시 실행해 주세요.';
+        document.getElementById('auditStatusBadge').textContent = uiLang === 'EN' ? 'Language changed' : '언어 변경됨';
+        ['auditQuestions', 'auditUncertain', 'auditLetterBox', 'medAdvisoryCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        return;
+      }
         document.getElementById('auditBillHeader').textContent = data.document_type
           ? `${uiLang === 'EN' ? 'Inquiry draft' : '질의서 초안'} · ${data.document_type}` : (uiLang === 'EN' ? 'Hospital Billing Inquiry Draft' : '병원 원무과 진료비 확인 질의서');
         document.getElementById('reductionAmount').textContent = data.target_item || '-';
@@ -1633,7 +1733,7 @@
         unc.textContent = data.ocr_uncertainties ? `${uiLang === 'EN' ? 'Uncertain OCR: ' : '인식 불확실: '}${data.ocr_uncertainties}` : '';
         unc.classList.toggle('hidden', !data.ocr_uncertainties);
 
-        document.getElementById('auditLetter').textContent = data.inquiry_letter_local
+        document.getElementById('auditLetter').textContent = uiLang !== 'EN' && data.inquiry_letter_local
           ? `${data.inquiry_letter || ''}\n\n---- ${uiLang === 'EN' ? 'Hospital-language version' : '병원 현지 언어본'} ----\n${data.inquiry_letter_local}`
           : (data.inquiry_letter || '');
         document.getElementById('auditLetterBox').classList.toggle('hidden', !data.inquiry_letter);
@@ -1677,19 +1777,7 @@
         badge.className = 'text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-bold border border-cyan-800';
         document.getElementById('auditModelBadge').textContent = data.model;
         document.getElementById('auditLatencyBadge').textContent = `${data.live_latency_ms}ms (Live API)`;
-        setStage('stageReason', 'ok', `${uiLang === 'EN' ? '③ NVIDIA Nemotron Reasoning: Done' : '③ NVIDIA Nemotron 추론: 완료'} (${data.live_latency_ms}ms)`);
-        showToast(`${uiLang === 'EN' ? 'NVIDIA Nemotron inquiry draft generated' : 'NVIDIA Nemotron 질의서 초안 생성'} (${data.live_latency_ms}ms)`);
-      } catch (err) {
-        document.getElementById('auditBillHeader').textContent = '⚠️ 추론 실패';
-        document.getElementById('reductionAmount').textContent = '-';
-        document.getElementById('reductionReason').textContent = (uiLang === 'EN' ? 'Error during server or Nebius API call: ' : '서버 또는 Nebius API 호출 중 오류가 발생했습니다: ') + (err.message || (uiLang === 'EN' ? 'Network error' : '네트워크 오류'));
-        setStage('stageReason', 'err', `${uiLang === 'EN' ? '③ NVIDIA Nemotron reasoning failed: ' : '③ NVIDIA Nemotron 추론 실패: '}` + (err.message || ''));
-        showToast(uiLang === 'EN' ? '⚠️ Error occurred during audit.' : '⚠️ 감사 실행 중 오류가 발생했습니다.');
-      } finally {
-        loading.classList.add('hidden');
-        resultCard.classList.remove('opacity-50');
-        btn.disabled = !currentReceipt;
-      }
+        setStage('stageReason', 'ok', { EN: `③ NVIDIA Nemotron Reasoning: Done (${data.live_latency_ms}ms)`, KR: `③ NVIDIA Nemotron 추론: 완료 (${data.live_latency_ms}ms)` });
     }
 
     // Copy only the letter the model actually produced.
@@ -1712,18 +1800,7 @@
         `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
       const isEn = uiLang === 'EN';
 
-      // Condition translation
-      let displayCond = selectedCondition || (isEn ? 'Not registered' : '기저질환 미등록');
-      if (isEn && selectedCondition) {
-        const condMap = {
-          '요추 디스크(추간판 탈출증)': 'Lumbar Disc Herniation',
-          '요추 디스크 (추간판탈출)': 'Lumbar Disc Herniation',
-          '척추관 협착증': 'Spinal Stenosis',
-          '만성 관절염 / 류마티스': 'Chronic Arthritis / Rheumatoid',
-          '급성 염좌 / 근막통증': 'Acute Sprain / Myofascial Pain'
-        };
-        displayCond = condMap[selectedCondition] || selectedCondition;
-      }
+      const displayCond = conditionLabel(selectedCondition) || (isEn ? 'Not registered' : '기저질환 미등록');
       document.getElementById('reportConditionText').textContent = displayCond;
       document.getElementById('reportVasNum').textContent = currentVas;
 
@@ -1903,16 +1980,9 @@
         return;
       }
 
-      const regMap = {'머리':'Head','목/경추':'Neck','어깨':'Shoulders','허리':'Lower Back','손목':'Wrists','골반':'Pelvis','무릎':'Knees','발목':'Ankles'};
       journalData.forEach((item) => {
-        let displayRegions = item.regions || '';
-        let displayPins = item.pins || '';
-        if (isEn) {
-          for (const [k, v] of Object.entries(regMap)) {
-            displayRegions = displayRegions.split(k).join(v);
-          }
-          displayPins = displayPins.split('앞면').join('Front ').split('뒷면').join('Back ').split('개').join(' pins');
-        }
+        const displayRegions = escapeHtml(regionLabels(item.regions));
+        const displayPins = escapeHtml(journalPins(item));
         const sampleBadge = item.sample ? `<span class="text-[9px] px-1 rounded bg-slate-700 text-slate-300">${isEn ? 'Sample' : '예시'}</span>` : '';
         const detailTxt = isEn ? 'Detail' : '상세';
         const deleteTxt = isEn ? 'Delete' : '삭제';
@@ -1996,10 +2066,10 @@
       if (!item) return;
 
       document.getElementById('detailDate').textContent = `${item.date} ${uiLang === 'EN' ? 'Detail Record' : '상세 기록'}`;
-      document.getElementById('detailRegions').textContent = `${item.regions} (VAS ${item.vas}/10)`;
-      document.getElementById('detailPins').textContent = item.pins;
-      document.getElementById('detailWatch').textContent = item.watch;
-      document.getElementById('detailAudit').textContent = item.audit;
+      document.getElementById('detailRegions').textContent = `${regionLabels(item.regions)} (VAS ${item.vas}/10)`;
+      document.getElementById('detailPins').textContent = journalPins(item);
+      document.getElementById('detailWatch').textContent = journalWatch(item);
+      document.getElementById('detailAudit').textContent = journalAudit(item);
 
       document.getElementById('recordDetailModal').classList.remove('hidden');
     }
