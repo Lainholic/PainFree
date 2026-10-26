@@ -116,11 +116,19 @@ class HackathonHandler(http.server.SimpleHTTPRequestHandler):
             if not raw_lines:
                 self._send_json(400, {"status": "error", "error": "영수증 인식 결과가 없습니다. 먼저 영수증 사진을 올려 주세요."})
                 return
+            try:
+                vas_val = int(body.get("vas", 0))
+            except (ValueError, TypeError):
+                vas_val = 0
+            try:
+                pins_val = int(body.get("pins", 0))
+            except (ValueError, TypeError):
+                pins_val = 0
             patient = {
                 "condition": str(body.get("condition", ""))[:120],
                 "pain_regions": str(body.get("pain_regions", ""))[:200],
-                "vas": max(0, min(10, int(body.get("vas", 0)))),
-                "pins": max(0, int(body.get("pins", 0))),
+                "vas": max(0, min(10, vas_val)),
+                "pins": max(0, pins_val),
             }
             w = body.get("wearable") or {}
             steps_today = int(w["steps_today"]) if str(w.get("steps_today", "")).isdigit() else None
