@@ -340,15 +340,15 @@
             </div>
           </div>
           <div id="parsedSummary" class="hidden text-[11px] text-slate-300 space-y-1 border-t border-slate-800 pt-2">
-            <div><span class="text-slate-500">의료기관:</span> <span id="parsedFacility">-</span></div>
-            <div><span class="text-slate-500">진료일:</span> <span id="parsedDate">-</span> · <span class="text-slate-500">합계:</span> <span id="parsedTotal">-</span> <span id="parsedCurrency" class="text-slate-500"></span></div>
+            <div><span id="labelFacility" class="text-slate-500">의료기관:</span> <span id="parsedFacility">-</span></div>
+            <div><span id="labelDate" class="text-slate-500">진료일:</span> <span id="parsedDate">-</span> · <span id="labelTotal" class="text-slate-500">합계:</span> <span id="parsedTotal">-</span> <span id="parsedCurrency" class="text-slate-500"></span></div>
             <table class="w-full text-[10px] mt-1">
-              <thead><tr class="text-slate-500 text-left"><th class="font-medium">항목</th><th class="font-medium">코드</th><th class="font-medium text-right">금액</th></tr></thead>
+              <thead><tr class="text-slate-500 text-left"><th id="thItemName" class="font-medium">항목</th><th id="thItemCode" class="font-medium">코드</th><th id="thItemAmt" class="font-medium text-right">금액</th></tr></thead>
               <tbody id="parsedItems"></tbody>
             </table>
           </div>
           <details class="text-[10px] text-slate-400">
-            <summary class="cursor-pointer">OCR 원문 보기 (<span id="ocrLineCount">0</span>줄)</summary>
+            <summary id="summaryOcrRaw" class="cursor-pointer">OCR 원문 보기 (<span id="ocrLineCount">0</span>줄)</summary>
             <pre id="ocrRaw" class="whitespace-pre-wrap mt-1 max-h-40 overflow-y-auto font-mono text-slate-300"></pre>
           </details>
         </div>
@@ -1051,9 +1051,10 @@
       document.getElementById('parsedSummary').classList.add('hidden');
       document.getElementById('ocrRaw').textContent = '';
       document.getElementById('ocrLineCount').textContent = '0';
-      setStage('stageOcr', 'run', '① 글자 인식 (Nemotron-3.5-Super-VL): 읽는 중...');
-      setStage('stageParse', 'wait', '② 숫자·항목 파싱: 대기');
-      setStage('stageReason', 'wait', '③ NVIDIA Nemotron 추론: 대기');
+      const isEn = uiLang === 'EN';
+      setStage('stageOcr', 'run', isEn ? '① Vision OCR (Nemotron-3.5-Super-VL): Reading...' : '① 글자 인식 (Nemotron-3.5-Super-VL): 읽는 중...');
+      setStage('stageParse', 'wait', isEn ? '② Deterministic Parser: Waiting' : '② 숫자·항목 파싱: 대기');
+      setStage('stageReason', 'wait', isEn ? '③ NVIDIA Nemotron Reasoning: Waiting' : '③ NVIDIA Nemotron 추론: 대기');
 
       try {
         const dataUrl = await imageToDataUrl(blob);
@@ -1069,22 +1070,23 @@
         document.getElementById('ocrRaw').textContent = lines.join('\n');
         document.getElementById('ocrLineCount').textContent = lines.length;
         if (lines.length === 0) {
-          setStage('stageOcr', 'err', '① 글자 인식: 문서 글자를 찾지 못했습니다. 다시 찍어 주세요.');
+          setStage('stageOcr', 'err', isEn ? '① Vision OCR: No text found. Please upload a clearer image.' : '① 글자 인식: 문서 글자를 찾지 못했습니다. 다시 찍어 주세요.');
           return;
         }
-        setStage('stageOcr', 'ok', `① 글자 인식: ${lines.length}줄 (${data.ocr_latency_ms}ms)`);
+        setStage('stageOcr', 'ok', isEn ? `① Vision OCR: ${lines.length} lines (${data.ocr_latency_ms}ms)` : `① 글자 인식: ${lines.length}줄 (${data.ocr_latency_ms}ms)`);
 
         const p = data.parsed || {};
         const items = p.items || [];
         setStage('stageParse', items.length ? 'ok' : 'err',
-          `② 숫자·항목 파싱: 항목 ${items.length}개${p.total != null ? ', 합계 ' + p.total.toLocaleString() : ''} (${data.parse_latency_ms}ms)`);
-        document.getElementById('parsedFacility').textContent = p.facility || '인식 안 됨';
-        document.getElementById('parsedDate').textContent = p.date || '인식 안 됨';
-        document.getElementById('parsedTotal').textContent = p.total != null ? p.total.toLocaleString() : '인식 안 됨';
+          isEn ? `② Deterministic Parser: ${items.length} items${p.total != null ? ', Total ' + p.total.toLocaleString() : ''} (${data.parse_latency_ms}ms)`
+               : `② 숫자·항목 파싱: 항목 ${items.length}개${p.total != null ? ', 합계 ' + p.total.toLocaleString() : ''} (${data.parse_latency_ms}ms)`);
+        document.getElementById('parsedFacility').textContent = p.facility || (isEn ? 'Not detected' : '인식 안 됨');
+        document.getElementById('parsedDate').textContent = p.date || (isEn ? 'Not detected' : '인식 안 됨');
+        document.getElementById('parsedTotal').textContent = p.total != null ? p.total.toLocaleString() : (isEn ? 'Not detected' : '인식 안 됨');
         document.getElementById('parsedCurrency').textContent = p.currency && p.currency !== 'UNKNOWN' ? `(${p.currency})` : '';
         document.getElementById('parsedItems').innerHTML = items.length
-          ? items.map(it => `<tr class="border-t border-slate-800"><td class="py-0.5 pr-1">${escapeHtml(it.name)}${it.noncovered ? ' <span class="text-amber-400">[비급여]</span>' : ''}</td><td class="font-mono text-slate-400">${escapeHtml(it.code || '-')}</td><td class="text-right font-mono">${escapeHtml(it.amounts.join(' / '))}</td></tr>`).join('')
-          : '<tr><td colspan="3" class="text-slate-500 py-1">항목 줄을 찾지 못했습니다. OCR 원문은 Nemotron 추론 엔진에 그대로 전달됩니다.</td></tr>';
+          ? items.map(it => `<tr class="border-t border-slate-800"><td class="py-0.5 pr-1">${escapeHtml(it.name)}${it.noncovered ? (isEn ? ' <span class="text-amber-400">[Noncovered]</span>' : ' <span class="text-amber-400">[비급여]</span>') : ''}</td><td class="font-mono text-slate-400">${escapeHtml(it.code || '-')}</td><td class="text-right font-mono">${escapeHtml(it.amounts.join(' / '))}</td></tr>`).join('')
+          : `<tr><td colspan="3" class="text-slate-500 py-1">${isEn ? 'No item lines extracted. Raw OCR text will still be evaluated by Nemotron.' : '항목 줄을 찾지 못했습니다. OCR 원문은 Nemotron 추론 엔진에 그대로 전달됩니다.'}</td></tr>`;
         document.getElementById('parsedSummary').classList.remove('hidden');
 
         currentReceipt = { lines, parsed: p, source: name };
@@ -1209,6 +1211,15 @@
         medCautionLabel: '일상 주의: ',
         medRecomLabel: '환자 권고: ',
         medDisclaimerText: '* 본 안내는 AI가 제공하는 일상 주의 및 건강 돌봄 참고사항이며, 전문 의료진의 진료나 처방 지시를 대신할 수 없습니다.',
+        stageOcrDefault: '① 글자 인식 (Nemotron-3.5-Super-VL): 대기',
+        stageParseDefault: '② 숫자·항목 파싱: 대기',
+        stageReasonDefault: '③ NVIDIA Nemotron 추론: 대기',
+        labelFacility: '의료기관:',
+        labelDate: '진료일:',
+        labelTotal: '합계:',
+        thItemName: '항목',
+        thItemCode: '코드',
+        thItemAmt: '금액',
       },
       EN: {
         headerBrandTitle: 'PainFree',
@@ -1319,6 +1330,15 @@
         medCautionLabel: 'Daily Precautions: ',
         medRecomLabel: 'Patient Guidance: ',
         medDisclaimerText: '* This advisory provides general AI-assisted daily care precautions and cannot replace professional medical advice from your physician.',
+        stageOcrDefault: '① Vision OCR (Nemotron-3.5-Super-VL): Waiting',
+        stageParseDefault: '② Deterministic Parser: Waiting',
+        stageReasonDefault: '③ NVIDIA Nemotron Reasoning: Waiting',
+        labelFacility: 'Facility:',
+        labelDate: 'Date:',
+        labelTotal: 'Total:',
+        thItemName: 'Item',
+        thItemCode: 'Code',
+        thItemAmt: 'Amount',
       }
     };
 
@@ -1375,6 +1395,17 @@
       setTxt('medRecomLabel', t.medRecomLabel);
       setTxt('medDisclaimerText', t.medDisclaimerText);
       setHtml('pipeExplText', t.pipeExplText);
+      setTxt('labelFacility', t.labelFacility);
+      setTxt('labelDate', t.labelDate);
+      setTxt('labelTotal', t.labelTotal);
+      setTxt('thItemName', t.thItemName);
+      setTxt('thItemCode', t.thItemCode);
+      setTxt('thItemAmt', t.thItemAmt);
+      if (!currentReceipt) {
+        setTxt('stageOcr', t.stageOcrDefault);
+        setTxt('stageParse', t.stageParseDefault);
+        setTxt('stageReason', t.stageReasonDefault);
+      }
 
       setTxt('sec3Title', t.sec3Title);
       setTxt('sec3Badge', t.sec3Badge);
